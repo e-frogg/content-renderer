@@ -1,0 +1,32 @@
+{
+  "_type": "page",
+  "url": "/test/truc",
+  "metaRobots": "index, follow",
+  "title": "mon title",
+  "containerClass": "annexe",
+  "bodyClass": "",
+  "h1": "page 1 Demo json",
+  "dynamicZone": [
+    {
+      "_type":"stylesheet",
+      "css": "body{color:red !important}"
+    },
+    {
+      "_type":"paragraph",
+      "heading": "paragraph heading 2",
+      "headingLevel": 2,
+      "content": "second paragraph content é!"
+    },
+    {
+      "_type":"product-listing",
+      "offers": [3999876,3999873,3999870,3999867,3999864,3987366,3987363,3912819,3910467],
+      "displayFilters": false
+    },
+    {
+      "_type":"paragraph",
+      "content": "2eme paragraphe",
+      "heading": "paragraph heading3",
+      "headingLevel": 3
+    }
+  ]
+}

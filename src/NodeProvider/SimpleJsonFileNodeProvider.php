@@ -1,0 +1,136 @@
+<?php
+
+
+namespace Efrogg\ContentRenderer\NodeProvider;
+
+
+use Efrogg\ContentRenderer\Converter\JsonConverter;
+use Efrogg\ContentRenderer\Decorator\DecoratorAwareInterface;
+use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
+use Efrogg\ContentRenderer\Decorator\DecoratorInterface;
+use Efrogg\ContentRenderer\Exception\InvalidDataException;
+use Efrogg\ContentRenderer\Exception\InvalidJsonException;
+use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
+use Efrogg\ContentRenderer\Node;
+use LogicException;
+
+class SimpleJsonFileNodeProvider implements NodeProviderInterface
+{
+    /**
+     * @var string|null
+     */
+    protected $rootPath;
+    /**
+     * @var string
+     */
+    private $extension;
+    /**
+     * @var JsonConverter
+     */
+    private $converter;
+
+    /**
+     * SimpleJsonFileDataProvider constructor.
+     * @param  string|null  $rootPath
+     * @param  string       $extension
+     */
+    public function __construct(string $rootPath=null,string $extension='.json')
+    {
+        $this->converter = new JsonConverter();
+
+        if(null !== $rootPath) {
+            $this->setRootPath($rootPath);
+        }
+        if(null !== $extension) {
+            $this->setExtension($extension);
+        }
+    }
+
+    /**
+     * @param  string  $nodeId
+     * @return Node
+     * @throws NodeNotFoundException
+     * @throws InvalidDataException
+     * @throws InvalidJsonException
+     * @throws LogicException
+     */
+    public function getNodeById(string $nodeId): Node
+    {
+        return $this->converter->convert($this->getNodeJson($nodeId));
+    }
+
+    public function canResolve($solvable, string $resolverName): bool
+    {
+        return file_exists($this->getFilePath($solvable));
+    }
+
+    /**
+     * @param  string  $nodeId
+     * @return string
+     * @throws NodeNotFoundException
+     */
+    private function getNodeJson(string $nodeId)
+    {
+        $filePath = $this->getFilePath($nodeId);
+        if(!file_exists($filePath)) {
+            throw new NodeNotFoundException('node "'.$nodeId.'" was not found');
+        }
+
+        return file_get_contents($filePath);
+    }
+
+    /**
+     * @param  string  $nodeId
+     * @return string
+     */
+    public function getFilePath(string $nodeId): string
+    {
+        return $this->getRootPath().$nodeId.$this->getExtension();
+    }
+
+    /**
+     * @param  string|null  $rootPath
+     * @return SimpleJsonFileNodeProvider
+     */
+    public function setRootPath(?string $rootPath): SimpleJsonFileNodeProvider
+    {
+        $this->rootPath = rtrim($rootPath,'/').'/';
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRootPath(): string
+    {
+        return $this->rootPath;
+    }
+
+    /**
+     * @param  string  $extension
+     * @return SimpleJsonFileNodeProvider
+     */
+    public function setExtension(string $extension): SimpleJsonFileNodeProvider
+    {
+        $this->extension = $extension;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExtension(): string
+    {
+        return $this->extension;
+    }
+
+    public function addDecorator(DecoratorInterface $decorator): void
+    {
+        $this->converter->addDecorator($decorator);
+    }
+
+    public function getDecorators(): array
+    {
+        return $this->converter->getDecorators();
+    }
+}

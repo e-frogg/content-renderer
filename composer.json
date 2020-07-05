@@ -1,0 +1,34 @@
+{
+  "name":         "efrogg/content-renderer",
+  "description":  "A library for generating HTML from headless CMS",
+  "homepage":     "https://www.e-frogg.com",
+  "keywords":     ["CMS"],
+  "license":      "MIT",
+  "authors": [
+    {"name": "Raphaël HOMANN"}
+  ],
+  "extra": {
+    "branch-alias": {
+      "dev-master": "0.0.1-dev"
+    }
+  },
+  "require": {
+    "php": ">=7.2",
+    "ext-json": "*",
+    "jaschilz/php-coverage-badger": "^2.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8",
+    "twig/twig": "^1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Efrogg\\ContentRenderer\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Test\\": "tests/Test"
+    }
+  }
+}

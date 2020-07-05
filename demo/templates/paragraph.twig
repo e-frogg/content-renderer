@@ -1,0 +1,4 @@
+{% if heading is defined  %}
+    <h{{ headingLevel|default(1) }}>{{ heading }}</h{{ headingLevel|default(1) }}>
+{% endif %}
+{{ content }}

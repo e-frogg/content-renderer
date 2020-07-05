@@ -1,0 +1,13 @@
+{
+  "_type": "container",
+  "dynamicZone": [
+    {
+      "_type": "paragraph",
+      "heading":"custom-heading",
+      "content":"Préparez votre rentrée !"
+    },
+    {
+      "_type": "product-listing"
+    }
+  ]
+}

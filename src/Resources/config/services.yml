@@ -1,0 +1,28 @@
+services:
+  #  Efrogg\ContentRenderer\ModuleRenderer\:
+  #    resource: '../src/Controller'
+  #    tags: ['controller.service_arguments']
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+  Efrogg\ContentRenderer\:
+    resource: '../..'
+#  Efrogg\ContentRenderer\ModuleRenderer\:
+#    resource: '../../ModuleRenderer'
+#
+#  Efrogg\ContentRenderer\Module\:
+#    resource: '../../Module'
+
+  _instanceof:
+    Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererInterface:
+      tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE_RENDERER]
+
+
+    Efrogg\ContentRenderer\Module\ModuleInterface:
+      tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE]
+
+
+# TODO
+#              $this->register('cms.moduleManager', ModuleResolver::class)
+#              ->addMethodCall('setDataProviderManager', [new Reference('cms.dataProviderManager')])

@@ -1,0 +1,18 @@
+{
+  "_type": "container",
+  "dynamicZone": [
+    {
+      "_type": "paragraph",
+      "content": "coucou tout le monde"
+    },
+    {
+      "_type": "paragraph",
+      "content": "2eme paragraphe"
+    },
+    {
+      "_type":"product-listing",
+      "offers": [3999876,3999873,3999870,3999867,3999864,3987366,3987363,3912819,3910467],
+      "displayFilters": false
+    }
+  ]
+}
