@@ -63,7 +63,7 @@ class twigConfigurator implements ConfiguratorInterface
      */
     public function renderImageSrc($imageId, $parameters = []): string
     {
-        return $this->renderImage($imageId, $parameters)->getSrc();
+        return $this->renderImage($imageId, $parameters)->getSrc()??'';
     }
 
     /**

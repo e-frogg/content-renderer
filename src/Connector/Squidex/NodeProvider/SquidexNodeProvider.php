@@ -13,17 +13,20 @@ use Efrogg\ContentRenderer\Connector\Squidex\SquidexTools;
 use Efrogg\ContentRenderer\Converter\Keyword;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
+use Efrogg\ContentRenderer\Log\LoggerProxy;
 use Efrogg\ContentRenderer\Node;
 use Efrogg\ContentRenderer\NodeProvider\NodeProviderInterface;
 use Exception;
 use GuzzleHttp\Exception\BadResponseException;
 use Psr\Cache\InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 class SquidexNodeProvider implements NodeProviderInterface
 {
     use DecoratorAwareTrait;
+    use LoggerProxy;
 
     /**
      * @var ConnectorInterface
@@ -46,9 +49,10 @@ class SquidexNodeProvider implements NodeProviderInterface
     private $TTL=1800;
 
 
-    public function __construct(SquidexConnector $connector)
+    public function __construct(SquidexConnector $connector,?LoggerInterface $logger=null)
     {
         $this->connector = $connector;
+        $this->initLogger($logger);
     }
 
     public function canResolve($solvable, string $resolverName): bool
@@ -70,6 +74,7 @@ class SquidexNodeProvider implements NodeProviderInterface
      */
     public function getNodeById(string $nodeId): Node
     {
+//        $startTime = microtime(true);
         if(null !== $this->cache) {
             $rawNodeData = $this->cache->get($nodeId,function(ItemInterface $item) {
                 $item->expiresAfter($this->getTTL());
@@ -82,6 +87,7 @@ class SquidexNodeProvider implements NodeProviderInterface
         }
 
         $nodeData = $this->convertData($rawNodeData['data']);
+//        $this->info('getNodeById : '.$nodeId,['duration'=>microtime(true)-$startTime,'title'=>'SquidexNodeProvider']);
         return new Node($nodeData, $rawNodeData['context']);
     }
 
@@ -111,7 +117,7 @@ class SquidexNodeProvider implements NodeProviderInterface
             try {
                 $converted[$k] = $this->convertOneField($datum);
             } catch (Exception $exception) {
-                dd('no data for '.$k,$exception);
+                dd('no data for node "'.$k.'"',$exception);
                 $converted[$k] = null;
                 // node not found ?
             }
@@ -152,8 +158,12 @@ class SquidexNodeProvider implements NodeProviderInterface
                             if ($asset = $this->findAsset($oneIv)) {
                                 $children[$key] = $asset;
                             } else {
+                                $this->error('Node or Asset not found : '.$oneIv,[
+                                    'title' => 'SquidexConnector'
+                                ]);
+
                                 // pas de node, pas d'asset... '
-                                throw new NodeNotFoundException();
+//                                throw new NodeNotFoundException();
                             }
                         }
                     }
@@ -193,6 +203,7 @@ class SquidexNodeProvider implements NodeProviderInterface
      */
     private function findAsset(string $oneIv): ?SquidexAsset
     {
+//        $startTime = microtime(true);
         $assets = $this->connector->getAssets([$oneIv]);
 
         if (null !== $this->assetManager) {
@@ -203,6 +214,7 @@ class SquidexNodeProvider implements NodeProviderInterface
                 );
             }
         }
+//        $this->info('findAsset : '.$oneIv,['duration'=>microtime(true)-$startTime,'title'=>'SquidexNodeProvider']);
         return $assets[$oneIv] ?? null;
     }
 

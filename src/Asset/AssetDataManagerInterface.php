@@ -4,9 +4,10 @@
 namespace Efrogg\ContentRenderer\Asset;
 
 
-interface AssetDataManagerInterface
-{
+use Efrogg\ContentRenderer\Cache\ControlableCacheInterface;
 
+interface AssetDataManagerInterface extends ControlableCacheInterface
+{
     public function deleteAsset($id): bool;
 
     public function setAsset($id, array $data): bool;

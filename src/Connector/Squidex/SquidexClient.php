@@ -4,13 +4,16 @@
 namespace Efrogg\ContentRenderer\Connector\Squidex;
 
 
+use Efrogg\ContentRenderer\Log\LoggerProxy;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\RequestOptions;
 use InvalidArgumentException;
+use Psr\Log\LoggerInterface;
 
 class SquidexClient
 {
+    use LoggerProxy;
     private $hostName;
     private $basePath;
     /**
@@ -32,10 +35,11 @@ class SquidexClient
      * @param  string|null  $hostName  the host name if different
      * @throws InvalidArgumentException
      */
-    public function __construct(string $baseUrl, string $basePath,$bearerApiToken, string $hostName = null)
+    public function __construct(string $baseUrl, string $basePath,$bearerApiToken, string $hostName = null,?LoggerInterface $logger=null)
     {
         $this->basePath = $basePath;
         $this->hostName = $hostName;
+        $this->initLogger($logger);
 
         $clientHeaders = [
             'Authorization' => 'Bearer '.$bearerApiToken,
@@ -72,6 +76,7 @@ class SquidexClient
     public function get($url, $queryParameters = [])
     {
 
+        $startTime=microtime(true);
         $finalUrl = $this->basePath.$this->forgeUrl($url, $queryParameters);
 
         $response = $this->guzzleClient->get(
@@ -79,6 +84,7 @@ class SquidexClient
             $this->getRequestOptions()
         );
 
+        $this->info("get ".$url,['duration'=>microtime(true)-$startTime,"parameters"=>$queryParameters,'title'=>'SquidexClient']);
         return json_decode($response->getBody()->getContents(),true);
     }
 

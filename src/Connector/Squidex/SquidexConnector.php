@@ -6,10 +6,13 @@ namespace Efrogg\ContentRenderer\Connector\Squidex;
 use Efrogg\ContentRenderer\Connector\ConnectorInterface;
 use Efrogg\ContentRenderer\Connector\Squidex\Asset\SquidexAsset;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
+use Efrogg\ContentRenderer\Log\LoggerProxy;
 use GuzzleHttp\Exception\BadResponseException;
+use Psr\Log\LoggerInterface;
 
 class SquidexConnector implements ConnectorInterface
 {
+    use LoggerProxy;
     /**
      * @var SquidexClient
      */
@@ -17,10 +20,11 @@ class SquidexConnector implements ConnectorInterface
 
     private $appName;
 
-    public function __construct(SquidexClient $client,string $appName)
+    public function __construct(SquidexClient $client,string $appName,?LoggerInterface $logger=null)
     {
         $this->client = $client;
         $this->appName = $appName;
+        $this->initLogger($logger);
     }
 
 
@@ -90,6 +94,9 @@ class SquidexConnector implements ConnectorInterface
             return $nodes[$nodeId];
         }
 
+        $this->warning('Node not found : '.$nodeId,[
+            'title' => 'SquidexConnector'
+        ]);
         throw new NodeNotFoundException('node '.$nodeId.' was not found');
     }
 

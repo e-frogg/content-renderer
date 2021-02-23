@@ -4,7 +4,6 @@
 namespace Efrogg\ContentRenderer\NodeProvider;
 
 
-use Efrogg\ContentRenderer\Core\Resolver\SortableSolverInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
 use Efrogg\ContentRenderer\Decorator\DecoratorInterface;
 use Efrogg\ContentRenderer\Node;

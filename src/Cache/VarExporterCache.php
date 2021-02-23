@@ -4,7 +4,9 @@
 namespace Efrogg\ContentRenderer\Cache;
 
 
+use Efrogg\ContentRenderer\Node;
 use Psr\Cache\CacheItemInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\VarExporter\VarExporter;
 use Symfony\Contracts\Cache\CacheTrait;
 
@@ -18,9 +20,10 @@ class VarExporterCache extends AbstractContentCache
 
     private $storagePath;
 
-    public function __construct($storagePath)
+    public function __construct($storagePath, ?LoggerInterface $logger = null)
     {
         $this->storagePath = rtrim($storagePath, '/');
+        $this->initLogger($logger);
     }
 
     /**
@@ -29,11 +32,19 @@ class VarExporterCache extends AbstractContentCache
     public function getItem($key)
     {
         return $this->contentGetCacheItem($key,function($key,Item $item) {
-            $object = require $this->getFileName($key);
-            $this->debug('loaded ('.$key.')', $object);
+            /** @var Node $object */
+            $object = require($fileName = $this->getFileName($key));
+//            $this->debug('loaded ('.$key.')', $object);
+            $this->info(
+                'loaded : "' . $key . '"',
+                [
+                    'title' => 'VarExporterCache',
+                    'file'  => $fileName,
+                    'data'  => $object->getData()
+                ]
+            );
             $item->set($object);
         });
-
     }
 
     public function getItems(array $keys = array())
@@ -56,7 +67,9 @@ class VarExporterCache extends AbstractContentCache
 
     public function deleteItem($key): bool
     {
-        $this->debug('delete ('.$key.')'.$this->getFileName($key));
+//        $this->debug('delete ('.$key.')'.$this->getFileName($key));
+        $this->info('delete "' . $key . '"', ['title' => 'VarExporterCache']);
+
         if (file_exists($filename = $this->getFileName($key))) {
             if (!@unlink($filename)) {
                 return false;
@@ -84,8 +97,15 @@ class VarExporterCache extends AbstractContentCache
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $dirName));
             }
         }
-        $this->debug('save ('.$item->getKey().')',$item->get());
-        return (bool)file_put_contents($fileName,'<?php return '.$exported.';');
+//        $this->debug('save ('.$item->getKey().')',$item->get());
+        $this->info(
+            'save "' . $item->getKey() . '"',
+            [
+                'title' => 'VarExporterCache',
+                'data' => $item->get()->getData()
+            ]
+        );
+        return (bool)file_put_contents($fileName, '<?php return ' . $exported . ';');
     }
 
     public function saveDeferred(CacheItemInterface $item)

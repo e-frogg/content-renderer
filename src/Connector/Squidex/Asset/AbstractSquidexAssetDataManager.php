@@ -3,9 +3,11 @@
 namespace Efrogg\ContentRenderer\Connector\Squidex\Asset;
 
 use Efrogg\ContentRenderer\Asset\AssetDataManagerInterface;
+use Efrogg\ContentRenderer\Cache\ControlableCacheTrait;
 
 abstract class AbstractSquidexAssetDataManager implements AssetDataManagerInterface
 {
+    use ControlableCacheTrait;
 
     /**
      * @param array|\ArrayAccess $asset
