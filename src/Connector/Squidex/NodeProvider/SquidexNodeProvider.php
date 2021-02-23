@@ -6,6 +6,7 @@ namespace Efrogg\ContentRenderer\Connector\Squidex\NodeProvider;
 
 use Efrogg\ContentRenderer\Asset\AssetDataManagerInterface;
 use Efrogg\ContentRenderer\Connector\ConnectorInterface;
+use Efrogg\ContentRenderer\Connector\Squidex\Asset\AbstractSquidexAssetDataManager;
 use Efrogg\ContentRenderer\Connector\Squidex\Asset\SquidexAsset;
 use Efrogg\ContentRenderer\Connector\Squidex\SquidexConnector;
 use Efrogg\ContentRenderer\Connector\Squidex\SquidexTools;
@@ -147,7 +148,13 @@ class SquidexNodeProvider implements NodeProviderInterface
                         } catch (NodeNotFoundException $exception) {
                             // ce n'est pas une asset référencée, ni un node
                             // on retourne un asset sans infos, juste le nom
-                            return new SquidexAsset($oneIv);
+                            // en espérant que ça marche ...
+                            if ($asset = $this->findAsset($oneIv)) {
+                                $children[$key] = $asset;
+                            } else {
+                                // pas de node, pas d'asset... '
+                                throw new NodeNotFoundException();
+                            }
                         }
                     }
                 } else {
@@ -163,10 +170,9 @@ class SquidexNodeProvider implements NodeProviderInterface
 
     private function getAsset(string $oneIv): ?SquidexAsset
     {
-        if(null !== $this->assetManager) {
-            if($assetData = $this->assetManager->getAsset($oneIv)) {
-                //TODO : on peut passer d'autres infos du assetData (isImage, type ....)
-                return new SquidexAsset($oneIv,$assetData['version']);
+        if (null !== $this->assetManager) {
+            if ($assetData = $this->assetManager->getAsset($oneIv)) {
+                return new SquidexAsset($oneIv, $assetData['version']);
             }
             // non trouvée, on fait quoi ?
             // return null => ce ne sera pas une asset (image vide)
@@ -174,10 +180,32 @@ class SquidexNodeProvider implements NodeProviderInterface
             return null;
         }
 
-        // même sans le cache, on peut considérer que c'est une image ...
-//        dd("no asset for id ".$oneIv);
-        return new SquidexAsset($oneIv);
+        // on le cherche via l'API
+        return $this->findAsset($oneIv);
     }
+
+    /**
+     * cherche un asset par son id dans l'api
+     * retourne null si l'asset n'a pas été trouvé
+     * @param string $oneIv
+     * @return SquidexAsset|null
+     * @throws BadResponseException
+     */
+    private function findAsset(string $oneIv): ?SquidexAsset
+    {
+        $assets = $this->connector->getAssets([$oneIv]);
+
+        if (null !== $this->assetManager) {
+            foreach ($assets as $asset) {
+                $this->assetManager->setAsset(
+                    $oneIv,
+                    AbstractSquidexAssetDataManager::getDataForCache($asset)
+                );
+            }
+        }
+        return $assets[$oneIv] ?? null;
+    }
+
 
     /**
      * @return CacheInterface

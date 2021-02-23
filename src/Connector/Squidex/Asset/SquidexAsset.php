@@ -10,8 +10,9 @@ use Efrogg\ContentRenderer\Asset\Asset;
  * Class SquidexAsset
  * @package Efrogg\ContentRenderer\Connector\Squidex\Asset
  *
- * @property string $_assetId
- * @property string $_version
+ * @property string $assetId
+ * @property string $version
+ *
  */
 class SquidexAsset extends Asset
 {
@@ -23,6 +24,16 @@ class SquidexAsset extends Asset
      * @var string|null
      */
     private $version;
+
+    /**
+     * @var ?string
+     */
+    private  $assetType;
+
+    /**
+     * @var ?bool
+     */
+    private $isImage;
 
     /**
      * SquidexAsset constructor.
@@ -51,6 +62,24 @@ class SquidexAsset extends Asset
     {
         return $this->version;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getAssetType(): ?string
+    {
+        return $this->assetType;
+    }
+
+    /**
+     * @return bool|null
+     */
+    public function getIsImage(): ?bool
+    {
+        return $this->isImage;
+    }
+
+
 
 //    public function export()
 //    {

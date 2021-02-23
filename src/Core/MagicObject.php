@@ -5,7 +5,7 @@ namespace Efrogg\ContentRenderer\Core;
 
 
 
-class MagicObject
+class MagicObject implements \ArrayAccess
 {
     /**
      * @var array
@@ -55,6 +55,11 @@ class MagicObject
         return isset($this->data[$name]);
     }
 
+    public function __unset($name)
+    {
+        unset($this->data[$name]);
+    }
+
     public function __call($name, $arguments)
     {
         if(strpos($name,'set')===0) {
@@ -67,5 +72,25 @@ class MagicObject
             $property = lcfirst(substr($name,3));
             return $this->__get($property);
         }
+    }
+
+    public function offsetExists($offset)
+    {
+        return $this->__isset($offset);
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this->__get($offset);
+    }
+
+    public function offsetSet($offset, $value)
+    {
+        $this->__set($offset,$value);
+    }
+
+    public function offsetUnset($offset)
+    {
+        $this->__unset($offset);
     }
 }
