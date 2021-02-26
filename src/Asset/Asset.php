@@ -21,7 +21,7 @@ class Asset extends Node
 
     public function __construct(?array $data = null)
     {
-        MagicObject::__construct($data,[Keyword::NODE_TYPE=>Keyword::TYPE_ASSET]);
+        parent::__construct([Keyword::NODE_TYPE=>Keyword::TYPE_ASSET],[],$data);
     }
 
     public static function _factorySrc($src): Asset

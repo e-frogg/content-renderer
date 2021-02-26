@@ -5,6 +5,7 @@ namespace Efrogg\ContentRenderer;
 
 
 
+use Efrogg\ContentRenderer\Converter\Keyword;
 use Efrogg\ContentRenderer\Core\MagicObject;
 
 /**
@@ -19,11 +20,16 @@ class Node extends MagicObject
      * @var array
      */
     private $context;
+    /**
+     * @var mixed|null
+     */
+    private $nodeId;
 
-    public function __construct(array $data=[],array $context=[])
+    public function __construct(array $data = [], array $context = [], ...$extraDatas)
     {
-        parent::__construct($data);
+        parent::__construct($data, ...$extraDatas);
         $this->context = $context;
+        $this->nodeId = $this->guessId();
     }
 
     /**
@@ -39,15 +45,44 @@ class Node extends MagicObject
      */
     public function getContext(): array
     {
+        if (null === $this->context) {
+            return [];
+        }
         return $this->context;
     }
 
     /**
-     * @param  array  $context
+     * @param array $context
      */
     public function setContext(array $context): void
     {
         $this->context = $context;
+    }
+
+    /**
+     * essaye de trouver l'id
+     * @return mixed|null
+     */
+    private function guessId()
+    {
+        if ($this->__isset(Keyword::NODE_ID)) {
+            return $this->__get(Keyword::NODE_ID);
+        }
+        if (isset($this->context[Keyword::NODE_ID])) {
+            return $this->context[Keyword::NODE_ID];
+        }
+        if (isset($this->context['id'])) {
+            return $this->context['id'];
+        }
+        return null;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getNodeId()
+    {
+        return $this->nodeId;
     }
 
 }
