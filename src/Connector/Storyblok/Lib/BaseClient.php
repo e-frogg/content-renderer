@@ -223,6 +223,7 @@ class BaseClient
 
             if ($this->getTimeout()) {
                 $requestOptions[RequestOptions::TIMEOUT] = $this->getTimeout();
+                $requestOptions[RequestOptions::READ_TIMEOUT] = $this->getTimeout();
                 $requestOptions[RequestOptions::CONNECT_TIMEOUT] = $this->getTimeout();
             }
 

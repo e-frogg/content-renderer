@@ -44,6 +44,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
     {
         $this->client = new Client($apiKeys['preview']);
         $this->client->setTimeout(5);
+        // pour le rendu  des RichText
         $this->textResolver = new Resolver();
         $this->initLogger($logger);
     }

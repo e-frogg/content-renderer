@@ -11,11 +11,13 @@ use Efrogg\ContentRenderer\Decorator\DecoratorInterface;
 use Efrogg\ContentRenderer\Exception\InvalidDataException;
 use Efrogg\ContentRenderer\Exception\InvalidJsonException;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
+use Efrogg\ContentRenderer\Log\LoggerProxy;
 use Efrogg\ContentRenderer\Node;
 use LogicException;
 
 class SimpleJsonFileNodeProvider implements NodeProviderInterface
 {
+    use LoggerProxy;
     /**
      * @var string|null
      */
@@ -73,9 +75,11 @@ class SimpleJsonFileNodeProvider implements NodeProviderInterface
     {
         $filePath = $this->getFilePath($nodeId);
         if(!file_exists($filePath)) {
+            $this->info("file does not exist : ".$filePath,['title'=>'SimpleJsonFileNodeProvider']);
             throw new NodeNotFoundException('node "'.$nodeId.'" was not found');
         }
 
+        $this->info("load file : ".$filePath,['title'=>'SimpleJsonFileNodeProvider']);
         return file_get_contents($filePath);
     }
 
