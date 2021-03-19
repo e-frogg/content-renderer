@@ -12,6 +12,7 @@ use Efrogg\ContentRenderer\Connector\Squidex\SquidexConnector;
 use Efrogg\ContentRenderer\Connector\Squidex\SquidexTools;
 use Efrogg\ContentRenderer\Converter\Keyword;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
+use Efrogg\ContentRenderer\Event\NodeRelationCacheManagerInterface;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Log\LoggerProxy;
 use Efrogg\ContentRenderer\Node;
@@ -22,6 +23,7 @@ use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Ubaldi\Cms\Cache\NodeRelationCacheManager;
 
 class SquidexNodeProvider implements NodeProviderInterface
 {
@@ -47,6 +49,11 @@ class SquidexNodeProvider implements NodeProviderInterface
      * @var int
      */
     private $TTL=1800;
+
+    /**
+     * @var NodeRelationCacheManagerInterface
+     */
+    private $nodeRelationCacheManager;
 
 
     public function __construct(SquidexConnector $connector,?LoggerInterface $logger=null)
@@ -86,6 +93,9 @@ class SquidexNodeProvider implements NodeProviderInterface
             $rawNodeData = $this->getRawNodeData($nodeId);
         }
 
+        if(isset($this->nodeRelationCacheManager)) {
+            $this->nodeRelationCacheManager->setActive(true);
+        }
         $nodeData = $this->convertData($rawNodeData['data']);
 //        $this->info('getNodeById : '.$nodeId,['duration'=>microtime(true)-$startTime,'title'=>'SquidexNodeProvider']);
         return new Node($nodeData, $rawNodeData['context']);
@@ -111,7 +121,6 @@ class SquidexNodeProvider implements NodeProviderInterface
 
     private function convertData(array $data):array
     {
-//        dump($data);
         $converted = [];
         foreach ($data as $k => $datum) {
             try {
@@ -265,6 +274,14 @@ class SquidexNodeProvider implements NodeProviderInterface
     public function setAssetManager(AssetDataManagerInterface $assetManager): void
     {
         $this->assetManager = $assetManager;
+    }
+
+    /**
+     * @param NodeRelationCacheManager $nodeRelationCacheManager
+     */
+    public function setNodeRelationCacheManager(NodeRelationCacheManager $nodeRelationCacheManager): void
+    {
+        $this->nodeRelationCacheManager = $nodeRelationCacheManager;
     }
 
 }

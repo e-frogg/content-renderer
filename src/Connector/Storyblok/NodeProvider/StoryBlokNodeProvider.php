@@ -14,7 +14,6 @@ use Efrogg\ContentRenderer\Node;
 use Efrogg\ContentRenderer\NodeProvider\NodeProviderInterface;
 use Psr\Log\LoggerInterface;
 use Storyblok\RichtextRender\Resolver;
-use Ubaldi\Cms\Cache\NodeRelationCacheManager;
 
 class StoryBlokNodeProvider implements NodeProviderInterface
 {
@@ -26,10 +25,6 @@ class StoryBlokNodeProvider implements NodeProviderInterface
     public const KEY_COMPONENT = 'component';
     public const KEY_IMAGE_ID = 'id';
     public const PROVIDER_IDENTIFIER = 'StoryBlok';
-    /**
-     * @var NodeRelationCacheManager
-     */
-    protected $nodeRelationCacheManager;
 
     /**
      * @var Client
@@ -49,16 +44,6 @@ class StoryBlokNodeProvider implements NodeProviderInterface
         $this->initLogger($logger);
     }
 
-    /**
-     * @param NodeRelationCacheManager $nodeRelationCacheManager
-     * @return StoryBlokNodeProvider
-     */
-    public function setNodeRelationCacheManager(NodeRelationCacheManager $nodeRelationCacheManager
-    ): StoryBlokNodeProvider {
-        $this->nodeRelationCacheManager = $nodeRelationCacheManager;
-        return $this;
-    }
-
     public function getNodeById(string $nodeId): Node
     {
         return $this->convertStoryDataToNode($this->client->responseBody['story']);
@@ -72,11 +57,6 @@ class StoryBlokNodeProvider implements NodeProviderInterface
                 ['title' => 'StoryBlokNodeProvider']
             );
             $this->client->getStoryBySlug('cms/' . $solvable);
-
-            if(isset($this->nodeRelationCacheManager)) {
-                // on désactive la gestion des relations ici
-                $this->nodeRelationCacheManager->setActive(false);
-            }
 
             return true;
         } catch (ApiException $e) {
@@ -171,14 +151,9 @@ class StoryBlokNodeProvider implements NodeProviderInterface
                 $value[Keyword::NODE_ID] = $value['id'];
                 return new StoryBlokAsset($value);
             }
-
-            if (isset($_GET['debug']) && EST_EFROGG_VRAI === true) {
-                dump('unknown array data : ', $value);
-            }
         }
 
         if (is_string($value)) {
-//            dump($value." : ".$this->decorate($value));
             return $this->decorate($value);
         }
 
