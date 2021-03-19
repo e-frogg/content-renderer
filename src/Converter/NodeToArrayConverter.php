@@ -42,6 +42,11 @@ class NodeToArrayConverter implements NodeConterterInterface,DecoratorAwareInter
             Keyword::NODE_TYPE=>$node->getType()
         ];
         foreach ($node->getData() as $key => $value) {
+            // les clés préfixées __ ne sont pas sauvegardées
+            if(strpos($key, '__') === 0) {
+                continue;
+            }
+
             $data[$key] = $this->convertValue($value);
         }
         return $data;

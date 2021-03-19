@@ -12,6 +12,7 @@ use Efrogg\ContentRenderer\Core\MagicObject;
  * Node is solvable for ModuleResolver
  *
  * Class Node
+ * @property ?string _type
  * @package Efrogg\ContentRenderer
  */
 class Node extends MagicObject
@@ -65,6 +66,9 @@ class Node extends MagicObject
      */
     private function guessId()
     {
+        if ($this->__isset(Keyword::NODE_UID)) {
+            return $this->__get(Keyword::NODE_UID);
+        }
         if ($this->__isset(Keyword::NODE_ID)) {
             return $this->__get(Keyword::NODE_ID);
         }
