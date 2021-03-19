@@ -21,8 +21,3 @@ services:
 
     Efrogg\ContentRenderer\Module\ModuleInterface:
       tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE]
-
-
-# TODO
-#              $this->register('cms.moduleManager', ModuleResolver::class)
-#              ->addMethodCall('setDataProviderManager', [new Reference('cms.dataProviderManager')])
