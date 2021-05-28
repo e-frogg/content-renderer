@@ -8,6 +8,12 @@ use Efrogg\ContentRenderer\Node;
 
 class SimpleDataModule implements ModuleInterface, DataModuleInterface
 {
+    /**
+     * @param Node   $solvable
+     * @param string $resolverName
+     *
+     * @return bool
+     */
     public function canResolve($solvable, string $resolverName): bool
     {
         return true;

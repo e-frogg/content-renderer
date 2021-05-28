@@ -11,9 +11,9 @@ trait DecoratorAwareTrait
      */
     private $decorators = [];
 
-    public function addDecorator(DecoratorInterface $nodeDecorator): void
+    public function addDecorator(DecoratorInterface $decorator): void
     {
-        $this->decorators[] = $nodeDecorator;
+        $this->decorators[] = $decorator;
     }
 
     public function getDecorators():array

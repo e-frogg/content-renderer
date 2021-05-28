@@ -20,6 +20,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
     use DecoratorAwareTrait;
     use LoggerProxy;
 
+    public const KEY_EDITABLE = '_editable';
     public const KEY_UID = '_uid';
     public const KEY_FILENAME = 'filename';
     public const KEY_COMPONENT = 'component';
@@ -34,6 +35,8 @@ class StoryBlokNodeProvider implements NodeProviderInterface
      * @var Resolver
      */
     private $textResolver;
+    // acc0d372-11c5-426f-9786-6947004b745c
+    private $uuidPattern='/([\w]{8})-([\w]{4})-([\w]{4})-([\w]{4})-([\w]{12})/';
 
     public function __construct(array $apiKeys, ?LoggerInterface $logger = null)
     {
@@ -56,7 +59,11 @@ class StoryBlokNodeProvider implements NodeProviderInterface
                 'load ' . $solvable,
                 ['title' => 'StoryBlokNodeProvider']
             );
-            $this->client->getStoryBySlug('cms/' . $solvable);
+            if ($this->isUUID($solvable)) {
+                $this->client->getStoryByUuid($solvable);
+            } else {
+                $this->client->getStoryBySlug($solvable);
+            }
 
             return true;
         } catch (ApiException $e) {
@@ -80,6 +87,9 @@ class StoryBlokNodeProvider implements NodeProviderInterface
         ];
         foreach ($content as $key => $value) {
             switch ($key) {
+                case self::KEY_EDITABLE:
+                    $nodeData[Keyword::EDITABLE] = $this->extractEditable($content[self::KEY_UID],$value);
+                    break;
                 case self::KEY_UID:
                     $nodeData[Keyword::NODE_ID] = $value;
                     break;
@@ -94,6 +104,13 @@ class StoryBlokNodeProvider implements NodeProviderInterface
         return new Node($nodeData, $context);
     }
 
+    private function extractEditable(string $nodeId,string $_editable): string
+    {
+        if(0 === strpos($_editable,'<!--#storyblok#')) {
+            return sprintf("data-blok-uid='%s' data-blok-c='%s'",$nodeId,substr($_editable,15,-3));
+        }
+        return '';
+    }
     /**
      * retourne true si on a affaire à une liste de nodes imbriqués
      * @param $nested
@@ -145,8 +162,13 @@ class StoryBlokNodeProvider implements NodeProviderInterface
             if (isset($value['type']) && $value['type'] === 'doc') {
                 return $this->decorate($this->textResolver->render($value));
             }
+            if (isset($value['plugin']) && $value['plugin'] === 'wysiwyg-tinymce') {
+                return $this->decorate($value['content']);
+            }
+            if (isset($value['plugin'])) {
+                return sprintf('[plugin : %s] : %s', $value['plugin'], var_export($value, true));
+            }
 
-//            if(isset($value['fieldtype']) && $value['fieldtype'] === 'asset') {
             if (isset($value[self::KEY_FILENAME], $value[self::KEY_IMAGE_ID])) {
                 $value[Keyword::NODE_ID] = $value['id'];
                 return new StoryBlokAsset($value);
@@ -159,6 +181,12 @@ class StoryBlokNodeProvider implements NodeProviderInterface
 
         // autre ?
         return $value;
+    }
+
+    // acc0d372-11c5-426f-9786-6947004b745c
+    private function isUUID($nodeId): bool
+    {
+        return preg_match($this->uuidPattern, $nodeId);
     }
 
 }

@@ -14,18 +14,24 @@ class ArrayConverter implements ConverterInterface
 {
     use DecoratorAwareTrait;
     /**
-     * @param $nodeData
-     * @return Node|Asset
+     * @var callable
+     */
+    private $nodeTypeResolver;
+
+    /**
+     * @param array $nodeData
+     * @return Node|Asset|array<Node|Asset>
      * @throws InvalidDataException
      * @throws LogicException
      */
     public function convert($nodeData)
     {
         if(!is_array($nodeData)) {
-            throw new InvalidDataException('ArrayConverter : data must be array');
+            throw new InvalidDataException(sprintf('ArrayConverter : data must be array. %s given',gettype($nodeData)));
         }
 
-//        if (isset($nodeData['_type'])) {
+        $this->tryFixNodeType($nodeData);
+
         if (isset($nodeData[Keyword::NODE_TYPE])) {
             $nodeType = $nodeData[Keyword::NODE_TYPE];
             $data = [];
@@ -44,7 +50,9 @@ class ArrayConverter implements ConverterInterface
             return new Node($data);
         }
 
-        throw new InvalidDataException('no _type was provided : ['.implode(',',array_keys($nodeData)).']');
+        // simpleArray
+        return array_map([$this, 'convert'], $nodeData);
+
     }
 
     /**
@@ -58,6 +66,8 @@ class ArrayConverter implements ConverterInterface
         // tableau de nodes
         if (is_array($value)) {
 
+            $this->tryFixNodeType($value);
+
             if(isset($value[Keyword::NODE_TYPE])) {
                 return $this->convert($value);
             }
@@ -68,5 +78,19 @@ class ArrayConverter implements ConverterInterface
 
         // une valeur
         return $this->decorate($value);
+    }
+
+    public function setNodeTypeResolver(callable $nodeTypeResolver)
+    {
+        $this->nodeTypeResolver = $nodeTypeResolver;
+    }
+
+    private function tryFixNodeType(array &$nodeData): void
+    {
+        if (!isset($nodeData[Keyword::NODE_TYPE]) && isset($this->nodeTypeResolver)) {
+            if(null !== ($computedNodeType = call_user_func($this->nodeTypeResolver,$nodeData))) {
+                $nodeData[Keyword::NODE_TYPE] = $computedNodeType;
+            }
+        }
     }
 }

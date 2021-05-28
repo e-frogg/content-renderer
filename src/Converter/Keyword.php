@@ -6,6 +6,7 @@ namespace Efrogg\ContentRenderer\Converter;
 
 class Keyword
 {
+    public const EDITABLE='_edit';
     public const NODE_ID='_id';
     public const NODE_UID='_uid';
     public const NODE_TYPE='_type';
