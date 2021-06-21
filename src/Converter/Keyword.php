@@ -11,4 +11,5 @@ class Keyword
     public const NODE_UID='_uid';
     public const NODE_TYPE='_type';
     public const TYPE_ASSET='_asset';
+    public const PREVIEW = '_preview';
 }

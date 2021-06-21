@@ -89,6 +89,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
             switch ($key) {
                 case self::KEY_EDITABLE:
                     $nodeData[Keyword::EDITABLE] = $this->extractEditable($content[self::KEY_UID],$value);
+                    $nodeData[Keyword::PREVIEW] = true;
                     break;
                 case self::KEY_UID:
                     $nodeData[Keyword::NODE_ID] = $value;

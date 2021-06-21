@@ -89,4 +89,12 @@ class Node extends MagicObject
         return $this->nodeId;
     }
 
+    public function isPreview(): bool
+    {
+        if ($this->__isset(Keyword::PREVIEW)) {
+            return (bool)$this->__get(Keyword::PREVIEW);
+        }
+        return false;
+    }
+
 }
