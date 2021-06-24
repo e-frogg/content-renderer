@@ -58,8 +58,12 @@ class JsonDumperNodeProvider implements NodeProviderInterface
     public function getNodeById(string $nodeId): Node
     {
             $node = $this->getNodeProvider()->getNodeById($nodeId);
-            $data = $this->converter->convert($node);
+            // ne pas sauvegarder le json en mode preview
+            if($node->isPreview()) {
+                return $node;
+            }
 
+            $data = $this->converter->convert($node);
             $json = json_encode($data, JSON_PRETTY_PRINT);
             if (false === $json) {
                 $this->error('unable to convert to json', ['data' => $data]);
