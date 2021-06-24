@@ -5,6 +5,7 @@ namespace Efrogg\ContentRenderer;
 
 
 use Efrogg\ContentRenderer\Converter\ArrayConverter;
+use Efrogg\ContentRenderer\Converter\Keyword;
 use Efrogg\ContentRenderer\Core\ConfiguratorInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
@@ -13,6 +14,7 @@ use Efrogg\ContentRenderer\Module\ModuleResolver;
 use Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver;
 use Efrogg\ContentRenderer\NodeProvider\NodeProviderInterface;
 use LogicException;
+use Twig\Template;
 
 class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface
 {
@@ -37,6 +39,27 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface
      * @var ArrayConverter
      */
     private $converter;
+
+    private $debugMode = false;
+
+    /**
+     * @return bool
+     */
+    public function isDebugMode(): bool
+    {
+        return $this->debugMode;
+    }
+
+    /**
+     * @param bool $debugMode
+     *
+     * @return CmsRenderer
+     */
+    public function setDebugMode(bool $debugMode): CmsRenderer
+    {
+        $this->debugMode = $debugMode;
+        return $this;
+    }
 
     /**
      * Renderer constructor.
@@ -97,29 +120,58 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface
 
 
     /**
-     * @param  string  $nodeId
+     * @param string      $nodeId
+     * @param string|null $subNode
+     * @param bool        $useSafeFallback
+     *  permet de retomber sur un node "error" proprement
+     *
      * @return string
      * @throws Core\Resolver\Exception\InvalidSolvableException
      * @throws Core\Resolver\Exception\SolverNotFoundException
      * @throws LogicException
-     * @throws NodeNotFoundException
      */
-    public function renderNodeById(string $nodeId, string $subNode = null): string
+    public function renderNodeById(string $nodeId, string $subNode = null, bool $useSafeFallback = true): string
     {
         if (null === $this->nodeProvider) {
             throw new LogicException('there is no nodeProvider configured');
         }
-        $node = $this->nodeProvider->getNodeById($nodeId);
+        try {
+            $node = $this->nodeProvider->getNodeById($nodeId);
+        } catch (NodeNotFoundException $exception) {
+            $stack = [];
+            foreach (debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT) as $stackItem) {
+                $object = $stackItem['object'];
+                if ($stackItem['class'] === Template::class && 'display' === $stackItem['function']) {
+                    $stack[] = $object->getTemplateName();
+                }
+            }
+            $node = new Node(
+                [
+                    Keyword::NODE_TYPE => 'nodeNotFound',
+                    "nodeId"           => $nodeId,
+                    "subNode"          => $subNode,
+                    "stack"            => var_export($stack, true),
+                    "debug"            => $this->isDebugMode()
+                ]
+            );
+            $subNode = null;
+        }
         if (null !== $subNode) {
             foreach (explode('.', $subNode) as $subnodeKey) {
                 $node = $node->getData()[$subnodeKey];
             }
         }
 
-        if(is_array($node)) {
-            return implode('',array_map(function($node) {
-                return $this->render($node);
-            },$node));
+        if (is_array($node)) {
+            return implode(
+                '',
+                array_map(
+                    function ($node) {
+                        return $this->render($node);
+                    },
+                    $node
+                )
+            );
         }
         return $this->render($node);
     }
