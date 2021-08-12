@@ -113,7 +113,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
         return '';
     }
     /**
-     * retourne true si on a affaire à une liste de nodes imbriqués
+     * retourne true si on a affaire Ã  une liste de nodes imbriquÃ©s
      * @param $nested
      * @return bool
      */
@@ -166,7 +166,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
             if (isset($value['plugin']) && $value['plugin'] === 'wysiwyg-tinymce') {
                 return $this->decorate($value['content']);
             }
-            if (isset($value['plugin'])) {
+            if (isset($value['plugin']) && $value['plugin'] !== 'native-color-picker') {
                 return sprintf('[plugin : %s] : %s', $value['plugin'], var_export($value, true));
             }
 
