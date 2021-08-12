@@ -124,7 +124,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
     }
 
     /**
-     * retourne true si on a affaire � une liste de nodes imbriqu�s
+     * retourne true si on a affaire à une liste de nodes imbriqués
      * @param $nested
      * @return bool
      */
