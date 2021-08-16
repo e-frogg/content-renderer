@@ -27,6 +27,14 @@ class StoryBlokNodeProvider implements NodeProviderInterface
     public const KEY_IMAGE_ID = 'id';
     public const PROVIDER_IDENTIFIER = 'StoryBlok';
 
+    private const DECORATED_WHITELIST_PLUGINS = [
+        'wysiwyg-tinymce',
+    ];
+
+    private const RAW_WHITELIST_PLUGINS = [
+        'native-color-picker',
+    ];
+
     /**
      * @var Client
      */
@@ -36,7 +44,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
      */
     private $textResolver;
     // acc0d372-11c5-426f-9786-6947004b745c
-    private $uuidPattern='/([\w]{8})-([\w]{4})-([\w]{4})-([\w]{4})-([\w]{12})/';
+    private $uuidPattern = '/([\w]{8})-([\w]{4})-([\w]{4})-([\w]{4})-([\w]{12})/';
 
     public function __construct(array $apiKeys, ?LoggerInterface $logger = null)
     {
@@ -75,6 +83,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
     private function convertStoryDataToNode(array $storyData): Node
     {
         $this->info('convert data', ['data' => $storyData, 'title' => 'StoryBlokNodeProvider']);
+
         return $this->convertDataToNode($storyData['content']);
     }
 
@@ -82,13 +91,13 @@ class StoryBlokNodeProvider implements NodeProviderInterface
     {
         $context = [];
         $nodeData = [
-            '__cmsProvider__'        => self::PROVIDER_IDENTIFIER,
-            '__storyBlokHotReload__' => isset($_GET['_storyblok_version'])
+            '__cmsProvider__' => self::PROVIDER_IDENTIFIER,
+            '__storyBlokHotReload__' => isset($_GET['_storyblok_version']),
         ];
         foreach ($content as $key => $value) {
             switch ($key) {
                 case self::KEY_EDITABLE:
-                    $nodeData[Keyword::EDITABLE] = $this->extractEditable($content[self::KEY_UID],$value);
+                    $nodeData[Keyword::EDITABLE] = $this->extractEditable($content[self::KEY_UID], $value);
                     $nodeData[Keyword::PREVIEW] = true;
                     break;
                 case self::KEY_UID:
@@ -105,15 +114,17 @@ class StoryBlokNodeProvider implements NodeProviderInterface
         return new Node($nodeData, $context);
     }
 
-    private function extractEditable(string $nodeId,string $_editable): string
+    private function extractEditable(string $nodeId, string $_editable): string
     {
-        if(0 === strpos($_editable,'<!--#storyblok#')) {
-            return sprintf("data-blok-uid='%s' data-blok-c='%s'",$nodeId,substr($_editable,15,-3));
+        if (0 === strpos($_editable, '<!--#storyblok#')) {
+            return sprintf("data-blok-uid='%s' data-blok-c='%s'", $nodeId, substr($_editable, 15, -3));
         }
+
         return '';
     }
+
     /**
-     * retourne true si on a affaire à une liste de nodes imbriqués
+     * retourne true si on a affaire Ã  une liste de nodes imbriquÃ©s
      * @param $nested
      * @return bool
      */
@@ -148,6 +159,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
             foreach ($value as $nodeKey => $nodeData) {
                 $newArray[$nodeKey] = $this->convertDataToNode($nodeData);
             }
+
             return $newArray;
         }
 
@@ -156,6 +168,7 @@ class StoryBlokNodeProvider implements NodeProviderInterface
             foreach ($value as $nodeKey => $assetData) {
                 $assets [$nodeKey] = new StoryBlokAsset($assetData);
             }
+
             return $assets;
         }
 
@@ -163,15 +176,16 @@ class StoryBlokNodeProvider implements NodeProviderInterface
             if (isset($value['type']) && $value['type'] === 'doc') {
                 return $this->decorate($this->textResolver->render($value));
             }
-            if (isset($value['plugin']) && $value['plugin'] === 'wysiwyg-tinymce') {
+            if (isset($value['plugin']) && in_array($value['plugin'], self::DECORATED_WHITELIST_PLUGINS, true)) {
                 return $this->decorate($value['content']);
             }
-            if (isset($value['plugin'])) {
+            if (isset($value['plugin']) && !in_array($value['plugin'], self::RAW_WHITELIST_PLUGINS, true)) {
                 return sprintf('[plugin : %s] : %s', $value['plugin'], var_export($value, true));
             }
 
             if (isset($value[self::KEY_FILENAME], $value[self::KEY_IMAGE_ID])) {
                 $value[Keyword::NODE_ID] = $value['id'];
+
                 return new StoryBlokAsset($value);
             }
         }
