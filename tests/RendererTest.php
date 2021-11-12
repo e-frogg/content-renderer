@@ -10,7 +10,7 @@ use Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver;
 use Efrogg\ContentRenderer\ModuleRenderer\TwigNamespaceModuleRenderer;
 use Efrogg\ContentRenderer\Node;
 use Efrogg\ContentRenderer\NodeProvider\SimpleJsonFileNodeProvider;
-use Efrogg\ContentRenderer\twigConfigurator;
+use Efrogg\ContentRenderer\TwigConfigurator;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -70,7 +70,7 @@ class RendererTest extends TestCase
 
         $this->renderer = new CmsRenderer($this->moduleResolver,$this->moduleRendererResolver);
 
-        $configurator = new twigConfigurator($this->renderer,$this->assetResolver,$this->twigEnvironment);
+        $configurator = new TwigConfigurator($this->renderer,$this->assetResolver,$this->twigEnvironment);
         $this->renderer->initConfigurator($configurator);
 
         $this->nodeProvider = new SimpleJsonFileNodeProvider(__DIR__.'/../demo/data');

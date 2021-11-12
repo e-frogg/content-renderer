@@ -266,7 +266,8 @@ class Client extends BaseClient
         if ($this->editModeEnabled) {
             $version = 'draft';
         }
-        // v2/cdn/stories/cms/ubaldi/vendre-sur-ubaldi?token=pusDEt5vPrerxazKG1eEHQtt
+
+        // v2/cdn/stories/cms/page-slug?token=pusDEt5vPrerxazKG1eEHQtt
         $key = 'stories/' . $slug;
         $cachekey = $this->_getCacheKey($key);
 
@@ -420,7 +421,7 @@ class Client extends BaseClient
 
         $this->reCacheOnPublish($key);
 
-        if ($version == 'published' && $this->cache && $cachedItem = $this->cache->load($cachekey)) {
+        if ('published' === $version && $this->cache && $cachedItem = $this->cache->load($cachekey)) {
             $this->_assignState($cachedItem);
         } else {
             $options = array_merge($options, array(

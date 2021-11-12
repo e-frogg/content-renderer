@@ -35,7 +35,7 @@ class TwigNamespaceModuleRenderer extends AbstractTwigModuleRenderer
     public function __construct(Environment $environment,$baseTwigNamespace='',$fileExtension='.twig')
     {
         parent::__construct($environment);
-        $this->twigNamespace = $baseTwigNamespace;
+        $this->twigNamespace = trim($baseTwigNamespace,'/');
         $this->fileExtension = $fileExtension;
     }
 

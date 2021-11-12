@@ -23,7 +23,6 @@ use Psr\Cache\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
-use Ubaldi\Cms\Cache\NodeRelationCacheManager;
 
 class SquidexNodeProvider implements NodeProviderInterface
 {
@@ -153,7 +152,7 @@ class SquidexNodeProvider implements NodeProviderInterface
                 if (is_string($oneIv) && SquidexTools::isNodeId($oneIv)) {
                     // commence par les assets, car les nodes ont un fallback vers l'api => call inutile si c'est une asset
                     if ($asset = $this->getAsset($oneIv)) {
-                        // on a trouvé un asset
+                        // on a trouvÃ© un asset
                         $children[$key] = $asset;
                     } else {
                         // on cherche un node
@@ -161,9 +160,9 @@ class SquidexNodeProvider implements NodeProviderInterface
                             // on a bien le node
                             $children[$key] = $this->getNodeById($oneIv);
                         } catch (NodeNotFoundException $exception) {
-                            // ce n'est pas une asset référencée, ni un node
+                            // ce n'est pas une asset rÃ©fÃ©rencÃ©e, ni un node
                             // on retourne un asset sans infos, juste le nom
-                            // en espérant que ça marche ...
+                            // en espÃ©rant que Ã§a marche ...
                             if ($asset = $this->findAsset($oneIv)) {
                                 $children[$key] = $asset;
                             } else {
@@ -193,7 +192,7 @@ class SquidexNodeProvider implements NodeProviderInterface
             if ($assetData = $this->assetManager->getAsset($oneIv)) {
                 return new SquidexAsset($oneIv, $assetData['version']);
             }
-            // non trouvée, on fait quoi ?
+            // non trouvÃ©e, on fait quoi ?
             // return null => ce ne sera pas une asset (image vide)
             // si on passe => asset sans version (et si ce n'est pas une asset ?)
             return null;
@@ -205,7 +204,7 @@ class SquidexNodeProvider implements NodeProviderInterface
 
     /**
      * cherche un asset par son id dans l'api
-     * retourne null si l'asset n'a pas été trouvé
+     * retourne null si l'asset n'a pas Ã©tÃ© trouvÃ©
      * @param string $oneIv
      * @return SquidexAsset|null
      * @throws BadResponseException
@@ -277,9 +276,9 @@ class SquidexNodeProvider implements NodeProviderInterface
     }
 
     /**
-     * @param NodeRelationCacheManager $nodeRelationCacheManager
+     * @param NodeRelationCacheManagerInterface $nodeRelationCacheManager
      */
-    public function setNodeRelationCacheManager(NodeRelationCacheManager $nodeRelationCacheManager): void
+    public function setNodeRelationCacheManager(NodeRelationCacheManagerInterface $nodeRelationCacheManager): void
     {
         $this->nodeRelationCacheManager = $nodeRelationCacheManager;
     }

@@ -14,7 +14,7 @@ use Twig\Environment;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-class twigConfigurator implements ConfiguratorInterface
+class TwigConfigurator implements ConfiguratorInterface
 {
     /**
      * @var CmsRenderer

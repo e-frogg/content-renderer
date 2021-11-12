@@ -140,8 +140,8 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface
         } catch (NodeNotFoundException $exception) {
             $stack = [];
             foreach (debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT) as $stackItem) {
-                $object = $stackItem['object'];
-                if ($stackItem['class'] === Template::class && 'display' === $stackItem['function']) {
+                if (isset($stackItem['class']) && $stackItem['class'] === Template::class && 'display' === $stackItem['function']) {
+                    $object = $stackItem['object'];
                     $stack[] = $object->getTemplateName();
                 }
             }

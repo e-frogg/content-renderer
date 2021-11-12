@@ -1,3 +1,7 @@
+parameters:
+  cms.twig.namespace: ''
+  cms.twig.extension: '.twig'
+
 services:
   #  Efrogg\ContentRenderer\ModuleRenderer\:
   #    resource: '../src/Controller'
@@ -14,6 +18,17 @@ services:
 #  Efrogg\ContentRenderer\Module\:
 #    resource: '../../Module'
 
+  Efrogg\ContentRenderer\ModuleRenderer\TwigNamespaceModuleRenderer:
+    arguments:
+      - '@twig'
+      - '%cms.twig.namespace%'
+      - '%cms.twig.extension%'
+
+  Efrogg\ContentRenderer\CmsRenderer:
+    calls:
+      - ['setNodeProvider',['@Efrogg\ContentRenderer\NodeProvider\NodeProviderResolver']]
+      - ['initConfigurator',['@Efrogg\ContentRenderer\TwigConfigurator']]
+
   _instanceof:
     Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererInterface:
       tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE_RENDERER]
@@ -21,3 +36,4 @@ services:
 
     Efrogg\ContentRenderer\Module\ModuleInterface:
       tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE]
+

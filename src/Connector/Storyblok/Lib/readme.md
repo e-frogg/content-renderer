@@ -1,6 +1,6 @@
 # note
 cette lib vient du vendor github.
-Je l'ai importée ici pour la rendre compatible guzzle 6... un fork aurait pu être fait, mais ... manque de temps ...
+Je l'ai importÃ©e ici pour la rendre compatible guzzle 6... un fork aurait pu Ãªtre fait, mais ... manque de temps ...
 
 https://github.com/storyblok/php-client
 

@@ -6,13 +6,11 @@ namespace Efrogg\ContentRenderer\Cache;
 
 use Efrogg\ContentRenderer\Event\CacheEvent;
 use Efrogg\ContentRenderer\Event\CmsEventDispatcher;
-use Efrogg\ContentRenderer\Event\NodeEvent;
 use Efrogg\ContentRenderer\Node;
 use Psr\Cache\CacheItemInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\VarExporter\VarExporter;
 use Symfony\Contracts\Cache\CacheTrait;
-use Ubaldi\Cms\Log\QuickLoggerTrait;
 
 /**
  * PSR-6 compliant implementation of RedisPersister
@@ -21,7 +19,6 @@ use Ubaldi\Cms\Log\QuickLoggerTrait;
 class VarExporterCache extends AbstractContentCache
 {
     use CacheTrait;
-    use QuickLoggerTrait;
 
     /**
      * @var CmsEventDispatcher
@@ -75,28 +72,27 @@ class VarExporterCache extends AbstractContentCache
 
     public function clear(): bool
     {
-        // TODO: Implement clear() method.
+        return true;
     }
 
     public function onClear(CacheEvent $nodeEvent): void
     {
-        $this->quickLog('clear cache "'.$nodeEvent->getId().'"');
+        $this->debug('clear cache "'.$nodeEvent->getId().'"');
 
         $this->deleteItem($nodeEvent->getId());
     }
 
     public function deleteItem($key): bool
     {
-//        $this->debug('delete ('.$key.')'.$this->getFileName($key));
         $this->info('delete "' . $key . '"', ['title' => 'VarExporterCache']);
 
         if (file_exists($filename = $this->getFileName($key))) {
-            $this->quickLog('delete file '.$filename);
+            $this->debug('delete file '.$filename);
             if (!@unlink($filename)) {
                 return false;
             }
         } else {
-            $this->quickLog('no file '.$filename);
+            $this->debug('no file '.$filename);
         }
         return true;
     }
@@ -121,7 +117,7 @@ class VarExporterCache extends AbstractContentCache
             }
         }
 
-        $this->cmsEventDispatcher->dispatch(CacheEvent::CACHE_SAVE, new CacheEvent($item->getKey(),$item->get()));
+        $this->cmsEventDispatcher->dispatch(new CacheEvent($item->getKey(),$item->get()),CacheEvent::CACHE_SAVE);
 
 //        $this->debug('save ('.$item->getKey().')',$item->get());
         $this->info(

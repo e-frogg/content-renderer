@@ -71,7 +71,7 @@ class JsonDumperNodeProvider implements NodeProviderInterface
             }
             $finalStorageFile = $this->baseStoragePath . '/' . $nodeId . '.json';
 
-            // création du dossier, le cas échéant
+            // crÃ©ation du dossier, le cas Ã©chÃ©ant
             $dir = dirname($finalStorageFile);
             if (!is_dir($dir) && !mkdir($dir, 0777, true) && !is_dir($dir)) {
                 $this->error('Directory "%s" was not created', ['dir' => $dir]);

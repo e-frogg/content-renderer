@@ -87,9 +87,7 @@ abstract class Resolver
 
         if (!$this->isValidSolvable($solvable)) {
             $solvableType =
-                is_string($solvable) ? $solvable :
-                is_array($solvable) ? 'array' :
-                get_class($solvable);
+                $this->getSolvableType($solvable);
 //            dd($solvable,get_class($this));
             throw new InvalidSolvableException($solvableType.' is not a valid '.$this->getSolvableName());
         }
@@ -124,7 +122,7 @@ abstract class Resolver
             return reset($solvers);
         }
 
-        $this->throwSolverNorFoundException($solvable);
+        throw $this->buildSolverNorFoundException($solvable);
     }
 
     /**
@@ -174,9 +172,10 @@ abstract class Resolver
 
     /**
      * @param $solvable
-     * @throws SolverNotFoundException
+     *
+     * @return SolverNotFoundException
      */
-    protected function throwSolverNorFoundException($solvable): void
+    protected function buildSolverNorFoundException($solvable): SolverNotFoundException
     {
         $solvableName = '??';
         if (is_object($solvable)) {
@@ -187,8 +186,29 @@ abstract class Resolver
 
         $exceptionClass = $this->notFoundExceptionClass;
         /** @var SolverNotFoundException $exception */
-        $exception = new $exceptionClass('solvable ['.$solvableName.'] has no valid solver for '.get_class($this));
-        throw $exception;
+        return new $exceptionClass('solvable ['.$solvableName.'] has no valid solver for '.get_class($this));
+    }
+
+    /**
+     * @param mixed $solvable
+     *
+     * @return string
+     */
+    private function getSolvableType($solvable): string
+    {
+        if(is_string($solvable)) {
+            return $solvable;
+        }
+
+        if(is_array($solvable)) {
+            return 'array';
+        }
+
+        if(is_object($solvable)) {
+            return get_class($solvable);
+        }
+
+        return gettype($solvable);
     }
 
 }

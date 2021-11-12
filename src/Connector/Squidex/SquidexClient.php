@@ -11,6 +11,8 @@ use GuzzleHttp\RequestOptions;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
+// TODO : déplacer squidex dans un vendor a part,
+//  pour ne pas poluer le cms de base, et pouvoir ajouter guzzle uniquement dans le vendor squidex
 class SquidexClient
 {
     use LoggerProxy;

@@ -19,7 +19,7 @@ use Efrogg\ContentRenderer\Node;
  * Class ModuleResolver
  * @package Efrogg\ContentRenderer\Module
  *
- * @method ModuleRendererInterface resolve(Node $solvable)
+ * @method ModuleInterface resolve(Node $solvable)
  */
 class ModuleResolver extends Resolver
 {

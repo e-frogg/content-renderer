@@ -16,7 +16,7 @@ use Efrogg\ContentRenderer\Node;
 class NodeProviderResolver extends Resolver implements NodeProviderInterface
 {
     use DecoratorAwareTrait {
-        addDecorator as addDecoratorFromTrait;
+        DecoratorAwareTrait::addDecorator as addDecoratorFromTrait;
     }
 
     protected $solverName = 'node provider';
@@ -40,7 +40,7 @@ class NodeProviderResolver extends Resolver implements NodeProviderInterface
     {
         parent::addSolver($solver);
 
-        // on ajoute les décorateurs au node provider
+        // on ajoute les dÃ©corateurs au node provider
         foreach ($this->getDecorators() as $decorator) {
             $solver->addDecorator($decorator);
         }
@@ -51,10 +51,11 @@ class NodeProviderResolver extends Resolver implements NodeProviderInterface
      */
     public function addDecorator(DecoratorInterface $decorator): void
     {
+        dump("add decorator");
         // on le stocke ici, pour l'ajouter plus tard a chaque node provider qui viendrait plus tard
         $this->addDecoratorFromTrait($decorator);
 
-        // on ajoute le décorateur a tous les providers
+        // on ajoute le dÃ©corateur a tous les providers
         $this->foreachSolvers(function(NodeProviderInterface $nodeProvider) use ($decorator) {
             $nodeProvider->addDecorator($decorator);
         });
