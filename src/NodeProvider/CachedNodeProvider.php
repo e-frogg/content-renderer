@@ -36,10 +36,10 @@ class CachedNodeProvider implements NodeProviderInterface
 
     public function getNodeById(string $nodeId): Node
     {
-        return $this->cache->get($nodeId,function(ItemInterface $item) {
+        return $this->cache->get($this->encodeKey($nodeId),function(ItemInterface $item) {
             $item->expiresAfter($this->getTTL());
             // ici, item->key == nodeId
-            return $this->nodeProvider->getNodeById($item->getKey());
+            return $this->nodeProvider->getNodeById($this->decodeKey($item->getKey()));
         });
     }
 
@@ -72,5 +72,15 @@ class CachedNodeProvider implements NodeProviderInterface
     public function setTTL(int $TTL): void
     {
         $this->TTL = $TTL;
+    }
+
+    private function encodeKey(string $nodeId): string
+    {
+        return base64_encode($nodeId);
+    }
+
+    public function decodeKey(string $getKey): string
+    {
+        return base64_decode($getKey);
     }
 }

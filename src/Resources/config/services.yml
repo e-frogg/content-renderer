@@ -1,6 +1,9 @@
 parameters:
   cms.twig.namespace: ''
   cms.twig.extension: '.twig'
+#  storyblok.cache: 'cache.cms'
+#  storyblok.cache: 'cms.cache.php'
+  storyblok.cache.storage-path: '/tmp'
 
 services:
   #  Efrogg\ContentRenderer\ModuleRenderer\:
@@ -18,21 +21,67 @@ services:
 #  Efrogg\ContentRenderer\Module\:
 #    resource: '../../Module'
 
+  Efrogg\ContentRenderer\CmsRenderer:
+    arguments:
+      - '@cms.module_resolver'
+      - '@cms.module_renderer_resolver'
+    calls:
+      - [ 'setNodeProvider',[ '@cms.node_provider' ] ]
+      - [ 'initConfigurator',[ '@cms.twig_configurator' ] ]
+
+  cms.twig_configurator:
+    class: 'Efrogg\ContentRenderer\TwigConfigurator'
+    arguments:
+      - '@Efrogg\ContentRenderer\CmsRenderer'
+      - '@cms.asset_resolver'
+      - '@twig'
+
+  cms.cache.php:
+    class: 'Efrogg\ContentRenderer\Cache\VarExporterCache'
+    arguments:
+      - '%storyblok.cache.storage-path%'
+      - '@cms.event_dispatcher'
+
+  cms.event_dispatcher:
+    class: 'Efrogg\ContentRenderer\Event\CmsEventDispatcher'
+
+  # the node provider resolver will handle ALL NodeProviderInterface
+  cms.node_provider_resolver:
+    class: 'Efrogg\ContentRenderer\NodeProvider\NodeProviderResolver'
+    calls:
+      - ['addSolvers',[!tagged_iterator cms.node_provider]] # ContainerTag::TAG_NODE_PROVIDER
+
+  cms.module_resolver:
+    class: 'Efrogg\ContentRenderer\Module\ModuleResolver'
+    calls:
+      - ['addSolvers',[!tagged_iterator cms.module]] # ContainerTag::TAG_MODULE
+
+
+  # an alias is created, in order to be substituted by the cache node provider
+  cms.node_provider:
+    alias: 'cms.node_provider_resolver'
+
   Efrogg\ContentRenderer\ModuleRenderer\TwigNamespaceModuleRenderer:
     arguments:
       - '@twig'
       - '%cms.twig.namespace%'
       - '%cms.twig.extension%'
 
-  Efrogg\ContentRenderer\CmsRenderer:
+  cms.asset_resolver:
+    class: 'Efrogg\ContentRenderer\Asset\AssetResolver'
     calls:
-      - ['setNodeProvider',['@Efrogg\ContentRenderer\NodeProvider\NodeProviderResolver']]
-      - ['initConfigurator',['@Efrogg\ContentRenderer\TwigConfigurator']]
+      - ['addSolvers',[!tagged_iterator cms.asset_handler]] # ContainerTag::TAG_ASSET_HANDLER
+
+  cms.module_renderer_resolver:
+    class: 'Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver'
+    calls:
+      - ['addSolvers',[!tagged_iterator cms.module_renderer]] # ContainerTag::TAG_MODULE_RENDERER
+
+
 
   _instanceof:
     Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererInterface:
       tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE_RENDERER]
-
 
     Efrogg\ContentRenderer\Module\ModuleInterface:
       tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE]

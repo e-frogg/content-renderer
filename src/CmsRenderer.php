@@ -16,7 +16,7 @@ use Efrogg\ContentRenderer\NodeProvider\NodeProviderInterface;
 use LogicException;
 use Twig\Template;
 
-class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface
+class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, CmsRendererInterface
 {
     use DecoratorAwareTrait;
     use ParameterizableTrait;
@@ -122,7 +122,6 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface
     /**
      * @param string      $nodeId
      * @param string|null $subNode
-     * @param bool        $useSafeFallback
      *  permet de retomber sur un node "error" proprement
      *
      * @return string
@@ -130,7 +129,7 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface
      * @throws Core\Resolver\Exception\SolverNotFoundException
      * @throws LogicException
      */
-    public function renderNodeById(string $nodeId, string $subNode = null, bool $useSafeFallback = true): string
+    public function renderNodeById(string $nodeId, string $subNode = null): string
     {
         if (null === $this->nodeProvider) {
             throw new LogicException('there is no nodeProvider configured');
@@ -179,6 +178,7 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface
 
     /**
      * @param  NodeProviderInterface  $dataProvider
+     *
      * @return CmsRenderer
      */
     public function setNodeProvider(NodeProviderInterface $dataProvider): CmsRenderer

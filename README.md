@@ -24,13 +24,42 @@ For example, a node typed "button" will look for the template "button.twig". Bas
 can be configured using parameters listed below. 
 
 ### add decorator
+```yaml
+# config/services.yaml
+services:
+    Efrogg\ContentRenderer\NodeProvider\NodeProviderResolver:
+        calls:
+            - ['addDecorator',['@Efrogg\ContentRenderer\Decorator\UTF8DecodeStringDecorator']]
+```
 
-    # config/services.yaml
-    services:
-        Efrogg\ContentRenderer\NodeProvider\NodeProviderResolver:
-            calls:
-                - ['addDecorator',['@Efrogg\ContentRenderer\Decorator\UTF8DecodeStringDecorator']]
+### add cache to the node provider
 
+#### 1 : using native Symfony cache
+```yaml
+parameters:
+    # use the cache pool name here
+    storyblok.cache: 'cms.cache'
+    # define here where php cache files will be stored
+    storyblok.cache.storage-path: '/tmp'
+
+```
+cache pool definition example
+ ```yaml
+ # config/packages/cache.yaml
+framework:
+    cache:
+        pools:
+            cache.cms:
+                adapter: 'cache.adapter.redis'
+```
+#### 2 : using provided custom cache adapter 
+```yaml
+# parameters.yaml
+parameters: 
+    storyblok.cache: 'content_renderer.cache.php'
+    # define the right path
+    storyblok.cache.storage-path: '/tmp'
+```
 
 ### configure
 Here is the list of usable parameters

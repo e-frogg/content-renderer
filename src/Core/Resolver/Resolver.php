@@ -68,7 +68,7 @@ abstract class Resolver
      * @param  array  $solvers
      * @throws InvalidSolverException
      */
-    public function addSolvers(array $solvers): void
+    public function addSolvers(iterable $solvers): void
     {
         foreach ($solvers as $solver) {
             $this->addSolver($solver);

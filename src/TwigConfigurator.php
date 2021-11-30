@@ -32,9 +32,10 @@ class TwigConfigurator implements ConfiguratorInterface
 
     /**
      * TwigRenderer constructor.
-     * @param  CmsRenderer    $cmsRenderer
-     * @param  AssetResolver  $assetResolver
-     * @param  Environment    $environment
+     *
+     * @param CmsRenderer    $cmsRenderer
+     * @param  AssetResolver $assetResolver
+     * @param  Environment   $environment
      */
     public function __construct(CmsRenderer $cmsRenderer,AssetResolver $assetResolver,Environment $environment)
     {
