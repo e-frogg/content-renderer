@@ -14,10 +14,10 @@ class CachePass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
 //        /** @var string[] $cacheServices */
-        if(!$container->hasParameter('storyblok.cache')) {
+        if (!$container->hasParameter('cms.cache')) {
             return;
         }
-        $cacheServiceId = $container->getParameter('storyblok.cache');
+        $cacheServiceId = $container->getParameter('cms.cache');
 
         if(empty($cacheServiceId)) {
             return;
@@ -44,11 +44,15 @@ class CachePass implements CompilerPassInterface
 
         $originalNodeProviderDefinition = $container->getDefinition('cms.node_provider_resolver');
 
-        $container->register('cms.node_provider', CachedNodeProvider::class)
+        $definition = $container->register('cms.node_provider', CachedNodeProvider::class)
                   ->addArgument($originalNodeProviderDefinition)
-                  ->addArgument($cacheServiceDefinition)//                 ->addMethodCall('setTTL', [$this->environment->get('cms.node_cache_ttl')])
+                  ->addArgument($cacheServiceDefinition)
         ;
-//        dd($param);
+
+        if($container->hasParameter('cms.cache.ttl') && $ttl=$container->getParameter('cms.cache.ttl')) {
+            $definition
+                      ->addMethodCall('setTTL', [$ttl]);
+        }
         // TODO: Implement process() method.
     }
 }

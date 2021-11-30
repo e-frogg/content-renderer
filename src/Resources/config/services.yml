@@ -1,9 +1,9 @@
 parameters:
   cms.twig.namespace: ''
   cms.twig.extension: '.twig'
-#  storyblok.cache: 'cache.cms'
-#  storyblok.cache: 'cms.cache.php'
-  storyblok.cache.storage-path: '/tmp'
+#  cms.cache: 'cache.cms'
+#  cms.cache: 'cms.cache.php'
+  cms.cache.storage-path: '%kernel.cache_dir%/cms/php'
 
 services:
   #  Efrogg\ContentRenderer\ModuleRenderer\:
@@ -39,7 +39,7 @@ services:
   cms.cache.php:
     class: 'Efrogg\ContentRenderer\Cache\VarExporterCache'
     arguments:
-      - '%storyblok.cache.storage-path%'
+      - '%cms.cache.storage-path%'
       - '@cms.event_dispatcher'
 
   cms.event_dispatcher:
