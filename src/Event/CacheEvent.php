@@ -5,7 +5,7 @@ namespace Efrogg\ContentRenderer\Event;
 
 
 use Efrogg\ContentRenderer\Node;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class CacheEvent extends Event
 {
