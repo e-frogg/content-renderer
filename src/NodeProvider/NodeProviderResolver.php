@@ -51,7 +51,6 @@ class NodeProviderResolver extends Resolver implements NodeProviderInterface
      */
     public function addDecorator(DecoratorInterface $decorator): void
     {
-        dump("add decorator");
         // on le stocke ici, pour l'ajouter plus tard a chaque node provider qui viendrait plus tard
         $this->addDecoratorFromTrait($decorator);
 

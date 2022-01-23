@@ -78,6 +78,11 @@ services:
     calls:
       - ['addSolvers',[!tagged_iterator cms.asset_handler]] # ContainerTag::TAG_ASSET_HANDLER
 
+  Efrogg\ContentRenderer\DataProvider\DataProviderResolver:
+    calls:
+      - ['addSolvers',[!tagged_iterator cms.data_provider]] # ContainerTag::TAG_ASSET_HANDLER
+
+
   cms.module_renderer_resolver:
     class: 'Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver'
     calls:
