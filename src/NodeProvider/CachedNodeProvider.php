@@ -6,13 +6,15 @@ namespace Efrogg\ContentRenderer\NodeProvider;
 
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
 use Efrogg\ContentRenderer\Decorator\DecoratorInterface;
+use Efrogg\ContentRenderer\Log\LoggerProxy;
 use Efrogg\ContentRenderer\Node;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 class CachedNodeProvider implements NodeProviderInterface
 {
-    use DecoratorAwareTrait;
+    use DecoratorAwareTrait, LoggerProxy;
     /**
      * @var NodeProviderInterface
      */
@@ -21,6 +23,7 @@ class CachedNodeProvider implements NodeProviderInterface
      * @var CacheInterface
      */
     private $cache;
+    private $cacheKeyPrefix = 'cms.node.';
 
     /**
      * TODO : not implemented
@@ -36,10 +39,16 @@ class CachedNodeProvider implements NodeProviderInterface
 
     public function getNodeById(string $nodeId): Node
     {
-        return $this->cache->get($this->encodeKey($nodeId),function(ItemInterface $item) {
+//        if($this->cache instanceof CacheItemPoolInterface) {
+//            dd($this->cache->getItem($this->encodeKey($nodeId)));
+//        }
+        //TODO : comprendre pourquoi ce log ne remonte pas dans le logger storyblok??
+        $this->info('getNodeById : '.$nodeId);
+        return $this->cache->get($this->encodeKey($this->cacheKeyPrefix.$nodeId),function(ItemInterface $item) use($nodeId){
+            $this->info('generate cache for '.$this->getTTL());
             $item->expiresAfter($this->getTTL());
             // ici, item->key == nodeId
-            return $this->nodeProvider->getNodeById($this->decodeKey($item->getKey()));
+            return $this->nodeProvider->getNodeById($nodeId);
         });
     }
 

@@ -14,10 +14,10 @@ class CachePass implements CompilerPassInterface
     public function process(ContainerBuilder $container)
     {
 //        /** @var string[] $cacheServices */
-        if (!$container->hasParameter('cms.cache')) {
+        if (!$container->hasParameter('cms.cache.service')) {
             return;
         }
-        $cacheServiceId = $container->getParameter('cms.cache');
+        $cacheServiceId = $container->getParameter('cms.cache.service');
 
         if(empty($cacheServiceId)) {
             return;
@@ -25,11 +25,11 @@ class CachePass implements CompilerPassInterface
 //            if(!$cacheServiceId instanceof Reference) {
 //                throw new \Exception('cache must be a reference to a service');
 //            }
-        try {
-            $cacheServiceDefinition = $container->getDefinition($cacheServiceId);
-        } catch (ServiceNotFoundException $e) {
-            throw $e;
-        }
+        $cacheServiceDefinition = $container->getDefinition($cacheServiceId);
+
+
+//        $cacheServiceDefinition = $container->getParameter('cms.cache');
+//        dd($cacheServiceDefinition)
 
         // no check because if we inject a Cache directly, Definition is a "ChildDefinition"... so class is empty
         if ($cacheServiceDefinition->getClass() && !is_subclass_of($cacheServiceDefinition->getClass(), CacheInterface::class)) {
@@ -37,8 +37,6 @@ class CachePass implements CompilerPassInterface
             throw new \Exception(sprintf('cache must be subclass of CacheInterface. %s found', $cacheServiceDefinition->getClass()));
         }
 
-
-        // TODO : ajouter du cache en amont du NodeProvider actuel ...
 
         // cached node provider vient décorer le node provider
 
@@ -53,6 +51,10 @@ class CachePass implements CompilerPassInterface
             $definition
                       ->addMethodCall('setTTL', [$ttl]);
         }
-        // TODO: Implement process() method.
+
+        // add logger service
+        if($container->hasParameter('cms.logger.service')) {
+            $definition->addMethodCall('setLogger',[$container->getDefinition($container->getParameter('cms.logger.service'))]);
+        }
     }
 }

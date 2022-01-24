@@ -38,7 +38,7 @@ services:
 ```yaml
 parameters:
     # use the cache pool name here
-    storyblok.cache: 'cms.cache'
+    cms.cache.service: 'cache.cms'
     # define here where php cache files will be stored
     storyblok.cache.storage-path: '/tmp'
 
@@ -55,8 +55,8 @@ framework:
 #### 2 : using provided custom cache adapter 
 ```yaml
 # parameters.yaml
-parameters: 
-    storyblok.cache: 'content_renderer.cache.php'
+parameters:
+    cms.cache.service: 'cms.cache.php'
     # define the right path
     storyblok.cache.storage-path: '/tmp'
 ```

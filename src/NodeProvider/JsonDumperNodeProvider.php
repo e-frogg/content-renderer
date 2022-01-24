@@ -60,6 +60,7 @@ class JsonDumperNodeProvider implements NodeProviderInterface
             $node = $this->getNodeProvider()->getNodeById($nodeId);
             // ne pas sauvegarder le json en mode preview
             if($node->isPreview()) {
+                $this->info('no save cache because of preview mode is enabled');
                 return $node;
             }
 

@@ -5,8 +5,10 @@ parameters:
   cms.twig.path_separator: '-'
   # ex for 2 : cms-folder-block-name => cms/folder/block-name
   cms.twig.path_max_depth: 0
-#  cms.cache: 'cache.cms'
-#  cms.cache: 'cms.cache.php'
+#  cms.cache.service: '@cache.cms'
+#  cms.cache.service: '@cms.cache.php'
+#  cms.logger.service: 'cms.logger.dumper'
+#  cms.logger.service: 'cms.logger.blackhole'
   cms.cache.storage-path: '%kernel.cache_dir%/cms/php'
 
 services:
@@ -24,6 +26,11 @@ services:
 #
 #  Efrogg\ContentRenderer\Module\:
 #    resource: '../../Module'
+
+  cms.logger.dumper:
+      class: Efrogg\ContentRenderer\Log\DumperLogger
+  cms.logger.blackhole:
+      class: Efrogg\ContentRenderer\Log\BlackHoleLogger
 
   Efrogg\ContentRenderer\CmsRenderer:
     arguments:
