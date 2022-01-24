@@ -43,6 +43,7 @@ class TwigNamespaceModuleRenderer extends AbstractTwigModuleRenderer
     public function __construct(Environment $environment,$baseTwigNamespace='',$fileExtension='.twig', $pathSeparator='-',$pathMaxDepth=0)
     {
         parent::__construct($environment);
+        $baseTwigNamespace=str_replace('(at)','@',$baseTwigNamespace);
         $this->twigNamespace = trim($baseTwigNamespace,'/');
         $this->fileExtension = $fileExtension;
         $this->pathSeparator = $pathSeparator;

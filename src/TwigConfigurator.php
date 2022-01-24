@@ -9,13 +9,24 @@ use Efrogg\ContentRenderer\Asset\AssetResolver;
 use Efrogg\ContentRenderer\Core\ConfiguratorInterface;
 use Efrogg\ContentRenderer\Core\Resolver\Exception\InvalidSolvableException;
 use Efrogg\ContentRenderer\Core\Resolver\Exception\SolverNotFoundException;
+use Efrogg\ContentRenderer\Event\TwigConfigurationEvent;
 use LogicException;
+use Symfony\Component\HttpKernel\Config\FileLocator;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
+use Twig\Loader\ChainLoader;
+use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class TwigConfigurator implements ConfiguratorInterface
 {
+
+    public const PRIORITY_HIGH=0;
+    public const PRIORITY_NORMAL=10;
+    public const PRIORITY_LOW=20;
+    protected EventDispatcherInterface $eventDispatcher;
+    protected FileLocator $fileLocator;
     /**
      * @var CmsRenderer
      */
@@ -37,11 +48,13 @@ class TwigConfigurator implements ConfiguratorInterface
      * @param  AssetResolver $assetResolver
      * @param  Environment   $environment
      */
-    public function __construct(CmsRenderer $cmsRenderer,AssetResolver $assetResolver,Environment $environment)
+    public function __construct(CmsRenderer $cmsRenderer,AssetResolver $assetResolver,Environment $environment, EventDispatcherInterface $eventDispatcher, FileLocator $fileLocator)
     {
         $this->cmsRenderer = $cmsRenderer;
         $this->assetResolver = $assetResolver;
         $this->environment = $environment;
+        $this->eventDispatcher = $eventDispatcher;
+        $this->fileLocator = $fileLocator;
     }
 
     /**
@@ -54,6 +67,19 @@ class TwigConfigurator implements ConfiguratorInterface
 
         $this->environment->addFilter(new TwigFilter('cmsImage', [$this, 'renderImageSrc'], ['is_safe' => ['html']]));
         $this->environment->addFunction(new TwigFunction('cmsImage', [$this, 'renderImage'], ['is_safe' => ['html']]));
+
+        // déclenche l'event pour ajouter
+        $loader = $this->environment->getLoader();
+        if ($loader instanceof ChainLoader) {
+
+            $pathCollector = new TwigPathCollector();
+            $this->eventDispatcher->dispatch(new TwigConfigurationEvent($this->environment, $pathCollector));
+
+            $filesystemLoader = new FilesystemLoader();
+            $filesystemLoader->setPaths($pathCollector->getSortedPaths(),'CMS');
+            $loader->addLoader($filesystemLoader);
+        }
+
     }
 
     /**
