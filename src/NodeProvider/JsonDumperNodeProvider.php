@@ -11,7 +11,7 @@ use Efrogg\ContentRenderer\Log\LoggerProxy;
 use Efrogg\ContentRenderer\Node;
 use LogicException;
 
-class JsonDumperNodeProvider implements NodeProviderInterface
+class JsonDumperNodeProvider implements NodeProviderInterface, CachedNodeProviderInterface
 {
     use NodeProviderAwareTrait;
     use LoggerProxy;
@@ -70,7 +70,7 @@ class JsonDumperNodeProvider implements NodeProviderInterface
                 $this->error('unable to convert to json', ['data' => $data]);
                 return $node;
             }
-            $finalStorageFile = $this->baseStoragePath . '/' . $nodeId . '.json';
+        $finalStorageFile = $this->getFileNameById($nodeId);
 
             // création du dossier, le cas échéant
             $dir = dirname($finalStorageFile);
@@ -84,12 +84,43 @@ class JsonDumperNodeProvider implements NodeProviderInterface
             if (false === $saved) {
                 $this->error('could not write file ' . $finalStorageFile);
             }
-            $this->info('saved json ',['fileName'=>$finalStorageFile,'data'=>$json,'title'=>'JsonDumperNodeProvider']);
-            return $node;
+        $this->info('saved json ', ['fileName' => $finalStorageFile, 'data' => $json, 'title' => 'JsonDumperNodeProvider']);
+        return $node;
     }
 
     public function canResolve($solvable, string $resolverName): bool
     {
         return $this->getNodeProvider()->canResolve($solvable, $resolverName);
     }
+
+    public function clearCacheById(string $nodeId): bool
+    {
+        $finalStorageFile = $this->getFileNameById($nodeId);
+
+        if (file_exists($finalStorageFile) && !unlink($finalStorageFile)) {
+            return false;
+        }
+        return true;
+    }
+
+    public function setCacheActive(bool $cacheActive): void
+    {
+        // rien
+    }
+
+    public function setCacheReset(bool $cacheReset): void
+    {
+        // rien
+    }
+
+    /**
+     * @param string $nodeId
+     *
+     * @return string
+     */
+    protected function getFileNameById(string $nodeId): string
+    {
+        return $this->baseStoragePath . '/' . $nodeId . '.json';
+    }
+
 }

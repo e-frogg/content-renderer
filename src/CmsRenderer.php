@@ -12,6 +12,7 @@ use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Module\ModuleResolver;
 use Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver;
+use Efrogg\ContentRenderer\NodeProvider\CachedNodeProviderInterface;
 use Efrogg\ContentRenderer\NodeProvider\NodeProviderInterface;
 use LogicException;
 use Twig\Template;
@@ -200,4 +201,17 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
         $configurator->configure();
     }
 
+    public function setNodeCacheActive(bool $cacheActive = true): void
+    {
+        if ($this->nodeProvider instanceof CachedNodeProviderInterface) {
+            $this->nodeProvider->setCacheActive($cacheActive);
+        }
+    }
+
+    public function setNodeCacheReset(bool $cacheReset = true): void
+    {
+        if ($this->nodeProvider instanceof CachedNodeProviderInterface) {
+            $this->nodeProvider->setCacheReset($cacheReset);
+        }
+    }
 }
