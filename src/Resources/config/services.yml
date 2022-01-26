@@ -1,106 +1,163 @@
 parameters:
-  cms.twig.namespace: ''
-  cms.twig.extension: '.twig'
-  # convert cms-page to cms/page
-  cms.twig.path_separator: '-'
-  # ex for 2 : cms-folder-block-name => cms/folder/block-name
-  cms.twig.path_max_depth: 0
-#  cms.cache.service: '@cache.cms'
-#  cms.cache.service: '@cms.cache.php'
-#  cms.logger.service: 'cms.logger.dumper'
-#  cms.logger.service: 'cms.logger.blackhole'
-  cms.cache.storage-path: '%kernel.cache_dir%/cms/php'
+    cms.twig.namespace: ''
+    cms.twig.extension: '.twig'
+    # convert cms-page to cms/page
+    cms.twig.path_separator: '-'
+    # ex for 2 : cms-folder-block-name => cms/folder/block-name
+    cms.twig.path_max_depth: 0
+
+    cms.cache.ttl: 60
+    cms.cache.php.storage-path: '%kernel.cache_dir%/cms/php'
+    cms.cache.json.storage-path: '%kernel.cache_dir%/cms/json'
 
 services:
-  #  Efrogg\ContentRenderer\ModuleRenderer\:
-  #    resource: '../src/Controller'
-  #    tags: ['controller.service_arguments']
-  _defaults:
-    autowire: true      # Automatically injects dependencies in your services.
-    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    #  Efrogg\ContentRenderer\ModuleRenderer\:
+    #    resource: '../src/Controller'
+    #    tags: ['controller.service_arguments']
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
 
-  Efrogg\ContentRenderer\:
-    resource: '../..'
-#  Efrogg\ContentRenderer\ModuleRenderer\:
-#    resource: '../../ModuleRenderer'
-#
-#  Efrogg\ContentRenderer\Module\:
-#    resource: '../../Module'
+    Efrogg\ContentRenderer\:
+        resource: '../..'
+    #  Efrogg\ContentRenderer\ModuleRenderer\:
+    #    resource: '../../ModuleRenderer'
+    #
+    #  Efrogg\ContentRenderer\Module\:
+    #    resource: '../../Module'
 
-  cms.logger.dumper:
-      class: Efrogg\ContentRenderer\Log\DumperLogger
-  cms.logger.blackhole:
-      class: Efrogg\ContentRenderer\Log\BlackHoleLogger
+    # ###################
+    #
+    #     LOGGER
+    #
+    # list of available services
+    cms.logger.dumper:
+        class: Efrogg\ContentRenderer\Log\DumperLogger
+        public: true
 
-  Efrogg\ContentRenderer\CmsRenderer:
-    arguments:
-      - '@cms.module_resolver'
-      - '@cms.module_renderer_resolver'
-    calls:
-      - [ 'setNodeProvider',[ '@cms.node_provider' ] ]
-      - [ 'initConfigurator',[ '@cms.twig_configurator' ] ]
+    cms.logger.blackhole:
+        class: Efrogg\ContentRenderer\Log\BlackHoleLogger
+        public: true
 
-  cms.twig_configurator:
-    class: 'Efrogg\ContentRenderer\TwigConfigurator'
-    arguments:
-      - '@Efrogg\ContentRenderer\CmsRenderer'
-      - '@cms.asset_resolver'
-      - '@twig'
+    cms.logger.profiler:
+        class: Efrogg\ContentRenderer\Log\CmsLogger
+        public: true
 
-  cms.cache.php:
-    class: 'Efrogg\ContentRenderer\Cache\VarExporterCache'
-    arguments:
-      - '%cms.cache.storage-path%'
-      - '@cms.event_dispatcher'
+    # selected logger service
+    # can be overwritten
+    cms.logger:
+        alias: cms.logger.profiler
 
-  cms.event_dispatcher:
-    class: 'Efrogg\ContentRenderer\Event\CmsEventDispatcher'
+    # ###################
+    #
+    #      CACHE
+    #
+    # list of available services
+    cms.cache.dummy:
+        class: 'Efrogg\ContentRenderer\Cache\DummyCache'
+        public: true
 
-  # the node provider resolver will handle ALL NodeProviderInterface
-  cms.node_provider_resolver:
-    class: 'Efrogg\ContentRenderer\NodeProvider\NodeProviderResolver'
-    calls:
-      - ['addSolvers',[!tagged_iterator cms.node_provider]] # ContainerTag::TAG_NODE_PROVIDER
+    cms.cache.php:
+        class: 'Efrogg\ContentRenderer\Cache\VarExporterCache'
+        arguments:
+            - '%cms.cache.php.storage-path%'
+            - '@cms.event_dispatcher'
+        public: true
 
-  cms.module_resolver:
-    class: 'Efrogg\ContentRenderer\Module\ModuleResolver'
-    calls:
-      - ['addSolvers',[!tagged_iterator cms.module]] # ContainerTag::TAG_MODULE
+    cms.cache.json:
+        class: 'Efrogg\ContentRenderer\Cache\JsonDumperCache'
+        arguments:
+            - '%cms.cache.json.storage-path%'
+            - '@cms.logger'
+        public: true
 
-
-  # an alias is created, in order to be substituted by the cache node provider
-  cms.node_provider:
-    alias: 'cms.node_provider_resolver'
-
-  Efrogg\ContentRenderer\ModuleRenderer\TwigNamespaceModuleRenderer:
-    arguments:
-      - '@twig'
-      - '%cms.twig.namespace%'
-      - '%cms.twig.extension%'
-      - '%cms.twig.path_separator%'
-      - '%cms.twig.path_max_depth%'
-
-  cms.asset_resolver:
-    class: 'Efrogg\ContentRenderer\Asset\AssetResolver'
-    calls:
-      - ['addSolvers',[!tagged_iterator cms.asset_handler]] # ContainerTag::TAG_ASSET_HANDLER
-
-  Efrogg\ContentRenderer\DataProvider\DataProviderResolver:
-    calls:
-      - ['addSolvers',[!tagged_iterator cms.data_provider]] # ContainerTag::TAG_ASSET_HANDLER
+    # selected cache service
+    # can be overwritten
+    cms.cache:
+        alias: cms.cache.dummy
 
 
-  cms.module_renderer_resolver:
-    class: 'Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver'
-    calls:
-      - ['addSolvers',[!tagged_iterator cms.module_renderer]] # ContainerTag::TAG_MODULE_RENDERER
+    cms.renderer:
+        class: Efrogg\ContentRenderer\CmsRenderer
+        arguments:
+            - '@cms.module_resolver'
+            - '@cms.module_renderer_resolver'
+        calls:
+            - [ 'setNodeProvider',[ '@cms.node_provider' ] ]
+            - [ 'initConfigurator',[ '@cms.twig_configurator' ] ]
+
+    cms.twig_configurator:
+        class: 'Efrogg\ContentRenderer\TwigConfigurator'
+        arguments:
+            - '@cms.renderer'
+            - '@cms.asset_resolver'
+            - '@twig'
 
 
 
-  _instanceof:
-    Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererInterface:
-      tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE_RENDERER]
+    cms.event_dispatcher:
+        class: 'Efrogg\ContentRenderer\Event\CmsEventDispatcher'
 
-    Efrogg\ContentRenderer\Module\ModuleInterface:
-      tags: [!php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE]
+    # the node provider resolver will handle ALL NodeProviderInterface
+    cms.node_provider_resolver:
+        class: 'Efrogg\ContentRenderer\NodeProvider\NodeProviderResolver'
+        calls:
+            - [ 'addSolvers',[ !tagged_iterator cms.node_provider ] ] # ContainerTag::TAG_NODE_PROVIDER
+            - [ 'setCache',[ '@cms.cache' ] ]
+            - [ 'setLogger',[ '@cms.logger' ]]
+            - [ 'setTTL',[ '%cms.cache.ttl%' ]]
 
+    cms.module_resolver:
+        class: 'Efrogg\ContentRenderer\Module\ModuleResolver'
+        calls:
+            - [ 'addSolvers',[ !tagged_iterator cms.module ] ] # ContainerTag::TAG_MODULE
+
+
+    # an alias is created, in order to be substituted by the cache node provider
+    cms.node_provider:
+        alias: 'cms.node_provider_resolver'
+
+    Efrogg\ContentRenderer\ModuleRenderer\TwigNamespaceModuleRenderer:
+        arguments:
+            - '@twig'
+            - '%cms.twig.namespace%'
+            - '%cms.twig.extension%'
+            - '%cms.twig.path_separator%'
+            - '%cms.twig.path_max_depth%'
+
+    cms.asset_resolver:
+        class: 'Efrogg\ContentRenderer\Asset\AssetResolver'
+        calls:
+            - [ 'addSolvers',[ !tagged_iterator cms.asset_handler ] ] # ContainerTag::TAG_ASSET_HANDLER
+
+    Efrogg\ContentRenderer\DataProvider\DataProviderResolver:
+        calls:
+            - [ 'addSolvers',[ !tagged_iterator cms.data_provider ] ] # ContainerTag::DATA_PROVIDER
+
+
+    cms.module_renderer_resolver:
+        class: 'Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver'
+        calls:
+            - [ 'addSolvers',[ !tagged_iterator cms.module_renderer ] ] # ContainerTag::TAG_MODULE_RENDERER
+
+
+
+    _instanceof:
+        Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererInterface:
+            tags: [ !php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE_RENDERER ]
+
+        Efrogg\ContentRenderer\Module\ModuleInterface:
+            tags: [ !php/const Efrogg\ContentRenderer\Core\Resolver\ContainerTag::TAG_MODULE ]
+
+
+    Efrogg\ContentRenderer\DataCollector\CmsLogDataCollector:
+        arguments:
+            - '@cms.logger.profiler'
+        tags:
+            -   name: data_collector
+                # must match the value returned by the getName() method
+                id: 'Efrogg\ContentRenderer\DataCollector\CmsLogDataCollector'
+                # optional template (it has more priority than the value returned by getTemplate())
+                template: '@ContentRenderer/collector/template.html.twig'
+                # optional priority (positive or negative integer; default = 0)
+                # priority: 300

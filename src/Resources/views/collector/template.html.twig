@@ -1,0 +1,91 @@
+{% extends '@WebProfiler/Profiler/layout.html.twig' %}
+
+{% block toolbar %}
+    {% set icon %}
+        {# this is the content displayed as a panel in the toolbar #}
+        {% include('@WebProfiler/Icon/http-client.svg') %}
+{#        {% include('@Cms/collector/cms-icon.svg') %}#}
+        <span class="sf-toolbar-value">Cms</span>
+    {% endset %}
+
+
+    {% set text %}
+        <style>
+            .sf-toolbar-cms-log span {
+                width: 430px;
+                display: block;
+                word-break: break-word;
+                white-space: break-spaces;
+            }
+
+            .sf-toolbar-block .sf-toolbar-cms-log .sf-toolbar-status {
+                text-align: left;
+            }
+        </style>
+
+        {# @var log Efrogg\Bundle\CmsBundle\Log\LogEntry #}
+        {% set status_color='' %}
+        {% for log in collector.logs %}
+            <div class="sf-toolbar-info-piece sf-toolbar-cms-log">
+                <b>{{ log.level }}</b>
+
+
+                {% set level_color='' %}
+                {% if log.level == 'error' %}
+                    {% set level_color = 'red' %}
+                    {% set status_color = 'red' %}
+                {% elseif log.level == 'warning' %}
+                    {% set level_color = 'yellow' %}
+                    {% if status_color != 'red' %}
+                        {% set status_color = 'yellow' %}
+                    {% endif %}
+                {% endif %}
+
+                <span class="sf-toolbar-status {{ level_color?'sf-toolbar-status-'~level_color:'' }}">{{ log.message }}</span>
+                {# {% if log.context is not empty %} #}
+                {# {{ dump(log.context) }} #}
+                {# {% endif %} #}
+            </div>
+        {% endfor %}
+    {% endset %}
+
+    {# the 'link' value set to 'false' means that this panel doesn't
+       show a section in the web profiler #}
+    {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true, status: status_color }) }}
+    {# {{ include('@WebProfiler/Profiler/toolbar_item.html.twig', { link: true}) }} #}
+
+{% endblock %}
+
+{% block menu %}
+    <span class="label">
+        <span class="icon">
+{#            {% include('@Cms/collector/cms-icon.svg') %}#}
+            {% include('@WebProfiler/Icon/http-client.svg') %}
+        </span>
+        <strong>Cms</strong>
+    </span>
+
+{% endblock %}
+
+{% block panel %}
+    <h2>Cms logs</h2>
+    <table>
+        <tr>
+            <th><b>level</b></th>
+            <th>message</th>
+            <th>context</th>
+        </tr>
+
+        {% for log in collector.logs %}
+            <tr>
+                <td>{{ log.level }}</td>
+                <td>{{ log.message }}</td>
+                <td>
+                    <pre>{{ log.context|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}
+

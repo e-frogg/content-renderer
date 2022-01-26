@@ -5,8 +5,6 @@ namespace Efrogg\ContentRenderer\NodeProvider;
 
 
 use Efrogg\ContentRenderer\Converter\JsonConverter;
-use Efrogg\ContentRenderer\Decorator\DecoratorAwareInterface;
-use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
 use Efrogg\ContentRenderer\Decorator\DecoratorInterface;
 use Efrogg\ContentRenderer\Exception\InvalidDataException;
 use Efrogg\ContentRenderer\Exception\InvalidJsonException;
@@ -14,9 +12,11 @@ use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Log\LoggerProxy;
 use Efrogg\ContentRenderer\Node;
 use LogicException;
+use Psr\Log\LoggerAwareInterface;
 
-class SimpleJsonFileNodeProvider implements NodeProviderInterface
+class SimpleJsonFileNodeProvider implements NodeProviderInterface, LoggerAwareInterface
 {
+    use CacheableNodeProviderTrait;
     use LoggerProxy;
     /**
      * @var string|null
@@ -56,7 +56,7 @@ class SimpleJsonFileNodeProvider implements NodeProviderInterface
      * @throws InvalidJsonException
      * @throws LogicException
      */
-    public function getNodeById(string $nodeId): Node
+    public function fetchNodeById(string $nodeId): Node
     {
         return $this->converter->convert($this->getNodeJson($nodeId));
     }
@@ -136,5 +136,10 @@ class SimpleJsonFileNodeProvider implements NodeProviderInterface
     public function getDecorators(): array
     {
         return $this->converter->getDecorators();
+    }
+
+    public function getCacheKeyPrefix(): string
+    {
+        return 'cms.json.';
     }
 }

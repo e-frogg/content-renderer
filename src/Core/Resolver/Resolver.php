@@ -211,4 +211,12 @@ abstract class Resolver
         return gettype($solvable);
     }
 
+    /**
+     * @return SolverInterface[]
+     */
+    public function getSolvers(): array
+    {
+        return $this->solvers;
+    }
+
 }

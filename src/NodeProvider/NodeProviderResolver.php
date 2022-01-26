@@ -4,6 +4,7 @@
 namespace Efrogg\ContentRenderer\NodeProvider;
 
 
+use Efrogg\ContentRenderer\Cache\CacheAwareTrait;
 use Efrogg\ContentRenderer\Core\Resolver\Exception\InvalidSolvableException;
 use Efrogg\ContentRenderer\Core\Resolver\Exception\InvalidSolverException;
 use Efrogg\ContentRenderer\Core\Resolver\Resolver;
@@ -12,12 +13,17 @@ use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
 use Efrogg\ContentRenderer\Decorator\DecoratorInterface;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Node;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 
-class NodeProviderResolver extends Resolver implements NodeProviderInterface
+class NodeProviderResolver extends Resolver implements NodeProviderInterface,LoggerAwareInterface
 {
     use DecoratorAwareTrait {
         DecoratorAwareTrait::addDecorator as addDecoratorFromTrait;
     }
+    use CacheAwareTrait;
+    use CacheableNodeProviderTrait;
+    use LoggerAwareTrait;
 
     protected $solverName = 'node provider';
     protected $solvableName = 'node id';
@@ -66,7 +72,7 @@ class NodeProviderResolver extends Resolver implements NodeProviderInterface
      * @throws NodeNotFoundException
      * @throws InvalidSolvableException
      */
-    public function getNodeById(string $nodeId): Node
+    public function fetchNodeById(string $nodeId): Node
     {
         $nodeProviders = $this->resolveAll($nodeId);
 
@@ -84,5 +90,10 @@ class NodeProviderResolver extends Resolver implements NodeProviderInterface
     public function canResolve($solvable, string $resolverName): bool
     {
         return true;
+    }
+
+    public function getCacheKeyPrefix(): string
+    {
+        return 'cms.resolver.';
     }
 }

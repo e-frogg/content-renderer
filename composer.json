@@ -14,7 +14,7 @@
     "symfony/event-dispatcher": "^5.1",
     "psr/cache": "*",
     "psr/log": "*",
-    "storyblok/richtext-resolver": "^1.0"
+    "symfony/expression-language": "^5.4"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",

@@ -5,6 +5,7 @@ namespace Efrogg\ContentRenderer\Connector\Squidex\NodeProvider;
 
 
 use Efrogg\ContentRenderer\Asset\AssetDataManagerInterface;
+use Efrogg\ContentRenderer\Cache\CacheAwareTrait;
 use Efrogg\ContentRenderer\Connector\ConnectorInterface;
 use Efrogg\ContentRenderer\Connector\Squidex\Asset\AbstractSquidexAssetDataManager;
 use Efrogg\ContentRenderer\Connector\Squidex\Asset\SquidexAsset;
@@ -16,6 +17,7 @@ use Efrogg\ContentRenderer\Event\NodeRelationCacheManagerInterface;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Log\LoggerProxy;
 use Efrogg\ContentRenderer\Node;
+use Efrogg\ContentRenderer\NodeProvider\CacheableNodeProviderTrait;
 use Efrogg\ContentRenderer\NodeProvider\NodeProviderInterface;
 use Exception;
 use GuzzleHttp\Exception\BadResponseException;
@@ -27,7 +29,7 @@ use Symfony\Contracts\Cache\ItemInterface;
 class SquidexNodeProvider implements NodeProviderInterface
 {
     use DecoratorAwareTrait;
-    use LoggerProxy;
+    use CacheableNodeProviderTrait;
 
     /**
      * @var ConnectorInterface
@@ -35,19 +37,10 @@ class SquidexNodeProvider implements NodeProviderInterface
     private $connector;
 
     /**
-     * @var CacheInterface
-     */
-    private $cache;
-
-    /**
      * @var AssetDataManagerInterface
      */
     private $assetManager;
 
-    /**
-     * @var int
-     */
-    private $TTL=1800;
 
     /**
      * @var NodeRelationCacheManagerInterface
@@ -78,11 +71,11 @@ class SquidexNodeProvider implements NodeProviderInterface
      * @throws BadResponseException
      * @throws InvalidArgumentException
      */
-    public function getNodeById(string $nodeId): Node
+    public function fetchNodeById(string $nodeId): Node
     {
 //        $startTime = microtime(true);
-        if(null !== $this->cache) {
-            $rawNodeData = $this->cache->get($nodeId,function(ItemInterface $item) {
+        if($this->hasCache()) {
+            $rawNodeData = $this->cache->get($this->getCacheKey($nodeId),function(ItemInterface $item) {
                 $item->expiresAfter($this->getTTL());
 //                $item->expiresAfter(new \DateInterval('P1D'));
 //                $item->expiresAt(new \DateTime('11:00'));
@@ -283,4 +276,8 @@ class SquidexNodeProvider implements NodeProviderInterface
         $this->nodeRelationCacheManager = $nodeRelationCacheManager;
     }
 
+    public function getCacheKeyPrefix(): string
+    {
+        return 'cms.squidex.';
+    }
 }
