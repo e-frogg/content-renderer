@@ -2,9 +2,10 @@
 
 namespace Efrogg\ContentRenderer\NodeProvider;
 
+use Efrogg\ContentRenderer\Cache\CacheKeyEncoderInterface;
 use Efrogg\ContentRenderer\Cache\ControlableCacheInterface;
 
-interface CacheableNodeProviderInterface extends ControlableCacheInterface
+interface CacheableNodeProviderInterface extends ControlableCacheInterface, CacheKeyEncoderInterface
 {
 
     /**
@@ -25,13 +26,6 @@ interface CacheableNodeProviderInterface extends ControlableCacheInterface
      * @return string
      */
     public function getCacheKeyPrefix(): string;
-
-    /**
-     * @param string $nodeId
-     *
-     * @return string
-     */
-    public function encodeKey(string $nodeId): string;
 
     /**
      * @return int

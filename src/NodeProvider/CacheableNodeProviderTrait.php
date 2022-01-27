@@ -44,13 +44,13 @@ trait CacheableNodeProviderTrait
         return $this->encodeKey($this->getCacheKeyPrefix() . $nodeId);
     }
 
-    public function encodeKey(string $nodeId): string
+    public function encodeKey(string $nodeIdWithPrefix): string
     {
         if($this->hasCache() && $this->cache instanceof JsonDumperCache) {
-            return $nodeId;
+            return $nodeIdWithPrefix;
         }
 
-        return base64_encode($nodeId);
+        return base64_encode($nodeIdWithPrefix);
     }
 
     /**

@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  * PSR-6 compliant implementation of RedisPersister
  * Class RedisCache
  */
-class JsonDumperCache extends DummyCache
+class JsonDumperCache extends DummyCache implements CacheKeyEncoderInterface
 {
     use LoggerProxy;
     /**
@@ -90,5 +90,11 @@ class JsonDumperCache extends DummyCache
     protected function getStorageFilename(string $key): string
     {
         return $this->baseStoragePath . '/' . $key . '.json';
+    }
+
+    public function encodeKey(string $nodeIdWithPrefix): string
+    {
+        // keep here original node id (path)
+        return $nodeIdWithPrefix;
     }
 }
