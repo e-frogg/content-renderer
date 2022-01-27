@@ -93,10 +93,16 @@ services:
             - '@cms.asset_resolver'
             - '@twig'
 
-
-
     cms.event_dispatcher:
         class: 'Efrogg\ContentRenderer\Event\CmsEventDispatcher'
+
+    Efrogg\ContentRenderer\EventListener\CacheClearEventSubscriber:
+        arguments:
+            - !tagged_iterator 'cms.cache_clear.on_publish'
+            - !tagged_iterator 'cms.cache_clear.on_unpublish'
+        tags:
+            - kernel.event_subscriber
+
 
     # the node provider resolver will handle ALL NodeProviderInterface
     cms.node_provider_resolver:
@@ -106,6 +112,9 @@ services:
             - [ 'setCache',[ '@cms.cache' ] ]
             - [ 'setLogger',[ '@cms.logger' ]]
             - [ 'setTTL',[ '%cms.cache.ttl%' ]]
+        tags:
+            - 'cms.cache_clear.on_publish'
+            - 'cms.cache_clear.on_unpublish'
 
     cms.module_resolver:
         class: 'Efrogg\ContentRenderer\Module\ModuleResolver'
