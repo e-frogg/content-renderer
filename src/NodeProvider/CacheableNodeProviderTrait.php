@@ -87,8 +87,6 @@ trait CacheableNodeProviderTrait
             $cacheShortName = (new \ReflectionClass($this->cache))->getShortName();
             $this->debug('cache : '.$cacheShortName.')');
             $cacheKey = $this->getCacheKey($nodeId);
-
-                dump("aaaaaaaaaaaaaaaaaaaaaaaa fsfd wsdfs dfgdfsg dsfg sdfg sdfjghdsjfhg ksjlfhg lkjqfdh glkjshdfiugh elruighiueqjrfng lkjdshf goiuqlekjrng leqiulhfk");
             if ($this->isUpdateCache() && $this->cache instanceof CacheItemPoolInterface) {
                 $this->warning('delete : ' . $cacheKey);
                 $this->cache->delete($cacheKey);
