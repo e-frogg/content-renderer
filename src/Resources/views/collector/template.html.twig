@@ -11,15 +11,25 @@
 
     {% set text %}
         <style>
+            .cms-log-title {
+                max-width: 130px;
+            }
             .sf-toolbar-cms-log span {
-                width: 430px;
+                width: 350px;
                 display: block;
                 word-break: break-word;
                 white-space: break-spaces;
             }
 
+            .sf-toolbar-block .sf-toolbar-info-piece.sf-toolbar-cms-log {
+                border-bottom: solid 1px #666;
+            }
+            .sf-toolbar-block .sf-toolbar-info-piece.sf-toolbar-cms-log:nth-child(odd) {
+                background-color: #555;
+            }
             .sf-toolbar-block .sf-toolbar-cms-log .sf-toolbar-status {
                 text-align: left;
+                background:none;
             }
         </style>
 
@@ -27,7 +37,7 @@
         {% set status_color='' %}
         {% for log in collector.logs %}
             <div class="sf-toolbar-info-piece sf-toolbar-cms-log">
-                <b>{{ log.level }}</b>
+                <b class="cms-log-title">{{ log.level }}<br><small>[{{ log.title }}]</small></b>
 
 
                 {% set level_color='' %}
@@ -72,13 +82,15 @@
     <table>
         <tr>
             <th><b>level</b></th>
+            <th>title</th>
             <th>message</th>
             <th>context</th>
         </tr>
-
+        {# @var log Efrogg\Bundle\CmsBundle\Log\LogEntry #}
         {% for log in collector.logs %}
             <tr>
                 <td>{{ log.level }}</td>
+                <td>{{ log.title }}</td>
                 <td>{{ log.message }}</td>
                 <td>
                     <pre>{{ log.context|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>

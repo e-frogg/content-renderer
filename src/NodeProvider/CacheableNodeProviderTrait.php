@@ -81,22 +81,25 @@ trait CacheableNodeProviderTrait
     {
 //        var_dump("coucou",get_class($this));
         $shortName = (new \ReflectionClass($this))->getShortName();
+        $logContext = ['title' => $shortName];
 
-        $this->info('getNodeById : ' . $nodeId .'('.$shortName.')');
+        $this->info('getNodeById : ' . $nodeId, $logContext);
         if ($this->hasCache()) {
             $cacheShortName = (new \ReflectionClass($this->cache))->getShortName();
-            $this->debug('cache : '.$cacheShortName.')');
             $cacheKey = $this->getCacheKey($nodeId);
+            $cacheLogContext = ['title' => $cacheShortName, 'cacheKey' => $cacheKey];
+
+            # handle live cache invalidation
             if ($this->isUpdateCache() && $this->cache instanceof CacheItemPoolInterface) {
-                $this->warning('delete : ' . $cacheKey);
+                $this->warning('DELETE cache key '.$cacheKey, $cacheLogContext);
                 $this->cache->delete($cacheKey);
             }
 
             if ($this->isUseCache()) {
-                $this->debug('get cache : ' . $cacheKey);
+                $this->debug('get cache : ' . $cacheKey, $cacheLogContext);
                 //TODO : comprendre pourquoi ce log ne remonte pas dans le logger storyblok??
-                return $this->cache->get($cacheKey, function (ItemInterface $item) use ($nodeId) {
-                    $this->info('generate for ' . $this->getTTL());
+                return $this->cache->get($cacheKey, function (ItemInterface $item) use ($nodeId,$cacheLogContext) {
+                    $this->info('GENERATE cache for ' . $this->getTTL(),$cacheLogContext);
                     $item->expiresAfter($this->getTTL());
                     // ici, item->key == nodeId
                     return $this->fetchNodeById($nodeId);
@@ -104,7 +107,7 @@ trait CacheableNodeProviderTrait
             }
         }
 
-        $this->debug('NO cache getNodeById : ' . $nodeId." : ".$shortName);
+        $this->debug('getNodeById : ' . $nodeId.'( NO CACHE )', $logContext);
         return $this->fetchNodeById($nodeId);
     }
 

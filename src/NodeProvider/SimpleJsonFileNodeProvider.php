@@ -5,6 +5,8 @@ namespace Efrogg\ContentRenderer\NodeProvider;
 
 
 use Efrogg\ContentRenderer\Converter\JsonConverter;
+use Efrogg\ContentRenderer\Core\Resolver\SortableSolverInterface;
+use Efrogg\ContentRenderer\Core\Resolver\SortableSolverTrait;
 use Efrogg\ContentRenderer\Decorator\DecoratorInterface;
 use Efrogg\ContentRenderer\Exception\InvalidDataException;
 use Efrogg\ContentRenderer\Exception\InvalidJsonException;
@@ -14,10 +16,11 @@ use Efrogg\ContentRenderer\Node;
 use LogicException;
 use Psr\Log\LoggerAwareInterface;
 
-class SimpleJsonFileNodeProvider implements NodeProviderInterface, LoggerAwareInterface
+class SimpleJsonFileNodeProvider implements NodeProviderInterface, LoggerAwareInterface, SortableSolverInterface
 {
     use CacheableNodeProviderTrait;
     use LoggerProxy;
+    use SortableSolverTrait;
     /**
      * @var string|null
      */

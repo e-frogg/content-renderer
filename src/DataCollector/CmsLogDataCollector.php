@@ -33,4 +33,5 @@ class CmsLogDataCollector extends AbstractDataCollector
     {
         return $this->data['logs'];
     }
+
 }

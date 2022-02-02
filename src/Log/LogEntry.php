@@ -50,6 +50,16 @@ class LogEntry
      */
     public function getContext(): array
     {
+        unset($this->context['title']);
+
         return $this->context;
+    }
+
+    /**
+     * @return mixed|string
+     */
+    public function getTitle()
+    {
+        return $this->context['title']??'';
     }
 }
