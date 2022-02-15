@@ -205,9 +205,9 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
         $this->nodeProvider->setUseCache($useCache);
     }
 
-    public function setUpdateCache(bool $updateCache = true): void
+    public function setUpdateCache(bool $updateCache = true, bool $isTemporaryChange = false): void
     {
-        $this->nodeProvider->setUpdateCache($updateCache);
+        $this->nodeProvider->setUpdateCache($updateCache,$isTemporaryChange);
     }
 
     public function isUpdateCache(): bool
@@ -218,5 +218,10 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
     public function isUseCache(): bool
     {
         return $this->nodeProvider->isUseCache();
+    }
+
+    public function restoreUpdateCache(): void
+    {
+        $this->nodeProvider->restoreUpdateCache();
     }
 }

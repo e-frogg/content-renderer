@@ -24,6 +24,10 @@ interface ControlableCacheInterface
 
     /**
      * @param bool $updateCache
+     * @param bool $isTemporaryChange
      */
-    public function setUpdateCache(bool $updateCache): void;
+    public function setUpdateCache(bool $updateCache, bool $isTemporaryChange = false): void;
+
+    public function restoreUpdateCache(): void;
+
 }

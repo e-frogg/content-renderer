@@ -3,6 +3,7 @@
 namespace Efrogg\ContentRenderer\NodeProvider;
 
 use Efrogg\ContentRenderer\Cache\CacheAwareTrait;
+use Efrogg\ContentRenderer\Cache\CacheKeyEncoderInterface;
 use Efrogg\ContentRenderer\Cache\ControlableCacheTrait;
 use Efrogg\ContentRenderer\Cache\JsonDumperCache;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
@@ -46,8 +47,8 @@ trait CacheableNodeProviderTrait
 
     public function encodeKey(string $nodeIdWithPrefix): string
     {
-        if($this->hasCache() && $this->cache instanceof JsonDumperCache) {
-            return $nodeIdWithPrefix;
+        if(isset($this->cache) && $this->cache instanceof CacheKeyEncoderInterface) {
+            return $this->cache->encodeKey($nodeIdWithPrefix);
         }
 
         return base64_encode($nodeIdWithPrefix);
