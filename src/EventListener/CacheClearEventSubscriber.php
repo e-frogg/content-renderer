@@ -38,18 +38,14 @@ class CacheClearEventSubscriber implements EventSubscriberInterface
 
     public function onPublish(PublishEvent $event): void
     {
-        dump('publish');
         foreach ($this->clearableOnPublish as $nodeProvider) {
-            dump(get_class($nodeProvider));
             $nodeProvider->clearCacheById($event->getNodeId());
         }
     }
 
     public function onUnpublished(UnpublishEvent $event): void
     {
-        dump('unpublish');
         foreach ($this->clearableOnUnpublish as $nodeProvider) {
-            dump(get_class($nodeProvider));
             $nodeProvider->clearCacheById($event->getNodeId());
         }
     }
