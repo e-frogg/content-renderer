@@ -1,6 +1,7 @@
 parameters:
     cms.twig.namespace: ''
     cms.twig.extension: '.twig'
+    cms.twig.debug_mode: false
     # convert cms-page to cms/page
     cms.twig.path_separator: '-'
     # ex for 2 : cms-folder-block-name => cms/folder/block-name
@@ -133,6 +134,8 @@ services:
             - '%cms.twig.extension%'
             - '%cms.twig.path_separator%'
             - '%cms.twig.path_max_depth%'
+        calls:
+            - ['setDebugMode',['%cms.twig.debug_mode%']]
 
     cms.asset_resolver:
         class: 'Efrogg\ContentRenderer\Asset\AssetResolver'

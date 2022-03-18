@@ -35,6 +35,11 @@ abstract class AbstractTwigModuleRenderer implements ModuleRendererInterface, Lo
     protected $environment;
 
     /**
+     * @var bool
+     */
+    protected $debugMode = false;
+
+    /**
      * TwigModuleRenderer constructor.
      * @param  Environment  $environment
      */
@@ -82,7 +87,7 @@ abstract class AbstractTwigModuleRenderer implements ModuleRendererInterface, Lo
             if (null !== $this->logger) {
                 $this->logger->error(sprintf("missing template %s", $templateName));
             }
-            if ($node->isPreview()) {
+            if ($this->debugMode) {
                 $missingTpl = $this->getTemplateForModuleType('missingTemplate');
                 try {
                     return $this->environment->render(
@@ -96,7 +101,16 @@ abstract class AbstractTwigModuleRenderer implements ModuleRendererInterface, Lo
                     return sprintf("-- missing template %s --", $templateName);
                 }
             }
-            throw $e;
+            return '';
+//            throw $e;
         }
+    }
+
+    /**
+     * @param bool $debugMode
+     */
+    public function setDebugMode(bool $debugMode): void
+    {
+        $this->debugMode = $debugMode;
     }
 }
