@@ -9,6 +9,7 @@ use Efrogg\ContentRenderer\Converter\Keyword;
 use Efrogg\ContentRenderer\Core\ConfiguratorInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
+use Efrogg\ContentRenderer\Exception\InvalidDataException;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Module\ModuleResolver;
 use Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver;
@@ -21,26 +22,15 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
     use DecoratorAwareTrait;
     use ParameterizableTrait;
 
-    /**
-     * @var ModuleResolver
-     */
-    private $moduleResolver;
+    private ModuleResolver $moduleResolver;
 
-    /**
-     * @var NodeProviderInterface
-     */
-    private $nodeProvider;
+    private NodeProviderInterface $nodeProvider;
 
-    /**
-     * @var ModuleRendererResolver
-     */
-    private $moduleRendererResolver;
-    /**
-     * @var ArrayConverter
-     */
-    private $converter;
+    private ModuleRendererResolver $moduleRendererResolver;
 
-    private $debugMode = false;
+    private ArrayConverter $converter;
+
+    private bool $debugMode = false;
 
     /**
      * @return bool
@@ -95,6 +85,18 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
     }
 
     /**
+     * @throws InvalidDataException
+     */
+    public function convertAndRenderList(array $items): string
+    {
+        $result = '';
+        foreach ($items as $item) {
+            $result .= $this->convertAndRender($item);
+        }
+        return $result;
+    }
+
+    /**
      * @param Node $node
      *
      * @return string
@@ -104,10 +106,10 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
      */
     public function render(Node $node): string
     {
-        if (null === $this->moduleResolver) {
+        if (!isset($this->moduleResolver)) {
             throw new LogicException('moduleResolver is not present');
         }
-        if (null === $this->moduleRendererResolver) {
+        if (!isset($this->moduleRendererResolver)) {
             throw new LogicException('moduleRendererResolver is not present');
         }
         $module = $this->moduleResolver->resolve($node);
@@ -116,7 +118,6 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
         $renderer->setParameters($this->getParameters());
         return $this->decorate($renderer->render($module, $node));
     }
-    //TODO : dataProvider sur type de node => page => tpl (h1 etc.....)
 
 
     /**
@@ -131,14 +132,14 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
      */
     public function renderNodeById(string $nodeId, string $subNode = null): string
     {
-        if (null === $this->nodeProvider) {
+        if (!isset($this->nodeProvider)) {
             throw new LogicException('there is no nodeProvider configured');
         }
         try {
             $node = $this->nodeProvider->getNodeById($nodeId);
-        } catch (NodeNotFoundException $exception) {
+        } catch (NodeNotFoundException) {
             $stack = [];
-            foreach (debug_backtrace(DEBUG_BACKTRACE_PROVIDE_OBJECT) as $stackItem) {
+            foreach (debug_backtrace() as $stackItem) {
                 if (isset($stackItem['class']) && $stackItem['class'] === Template::class && 'display' === $stackItem['function']) {
                     $object = $stackItem['object'];
                     $stack[] = $object->getTemplateName();

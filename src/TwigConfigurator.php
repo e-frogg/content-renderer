@@ -50,6 +50,7 @@ class TwigConfigurator implements ConfiguratorInterface
     public function configure(): void
     {
         $this->environment->addFilter(new TwigFilter('cms', [$this->cmsRenderer, 'convertAndRender'], ['is_safe' => ['html']]));
+        $this->environment->addFilter(new TwigFilter('cmsList', [$this->cmsRenderer, 'convertAndRenderList'], ['is_safe' => ['html']]));
         $this->environment->addFunction(new TwigFunction('cmsNode', [$this->cmsRenderer, 'renderNodeById'], ['is_safe' => ['html']]));
 
         $this->environment->addFilter(new TwigFilter('cmsImage', [$this, 'renderImageSrc'], ['is_safe' => ['html']]));
@@ -87,10 +88,8 @@ class TwigConfigurator implements ConfiguratorInterface
         }
 
         try {
-            $assetHandler = $this->assetResolver->resolve($asset);
-            return $assetHandler->getAsset($asset, $parameters);
-        } catch (InvalidSolvableException $e) {
-        } catch (SolverNotFoundException $e) {
+            return $this->assetResolver->resolve($asset)->getAsset($asset, $parameters);
+        } catch (InvalidSolvableException|SolverNotFoundException) {
         }
 
         // on a fourni un asset, on peut le retourner directement
