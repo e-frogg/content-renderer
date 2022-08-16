@@ -10,38 +10,27 @@ use Efrogg\ContentRenderer\Core\ConfiguratorInterface;
 use Efrogg\ContentRenderer\Core\Resolver\Exception\InvalidSolvableException;
 use Efrogg\ContentRenderer\Core\Resolver\Exception\SolverNotFoundException;
 use LogicException;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Twig\Environment;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class TwigConfigurator implements ConfiguratorInterface
 {
-    /**
-     * @var CmsRenderer
-     */
-    private $cmsRenderer;
-
-    /**
-     * @var AssetResolver
-     */
-    private $assetResolver;
-    /**
-     * @var Environment
-     */
-    private $environment;
 
     /**
      * TwigRenderer constructor.
      *
-     * @param CmsRenderer    $cmsRenderer
-     * @param  AssetResolver $assetResolver
-     * @param  Environment   $environment
+     * @param CmsRenderer   $cmsRenderer
+     * @param AssetResolver $assetResolver
+     * @param Environment   $environment
      */
-    public function __construct(CmsRenderer $cmsRenderer,AssetResolver $assetResolver,Environment $environment)
-    {
-        $this->cmsRenderer = $cmsRenderer;
-        $this->assetResolver = $assetResolver;
-        $this->environment = $environment;
+    public function __construct(
+        private readonly CmsRenderer $cmsRenderer,
+        private readonly AssetResolver $assetResolver,
+        private readonly Environment $environment,
+        private readonly SluggerInterface $slugger
+    ) {
     }
 
     /**
@@ -52,38 +41,33 @@ class TwigConfigurator implements ConfiguratorInterface
         $this->environment->addFilter(new TwigFilter('cms', [$this->cmsRenderer, 'convertAndRender'], ['is_safe' => ['html']]));
         $this->environment->addFilter(new TwigFilter('cmsList', [$this->cmsRenderer, 'convertAndRenderList'], ['is_safe' => ['html']]));
         $this->environment->addFunction(new TwigFunction('cmsNode', [$this->cmsRenderer, 'renderNodeById'], ['is_safe' => ['html']]));
+        $this->environment->addFilter(new TwigFilter('slug', [$this->slugger, 'slug'], ['is_safe' => ['html']]));
 
         $this->environment->addFilter(new TwigFilter('cmsImage', [$this, 'renderImageSrc'], ['is_safe' => ['html']]));
         $this->environment->addFunction(new TwigFunction('cmsImage', [$this, 'renderImage'], ['is_safe' => ['html']]));
     }
 
     /**
-     * @param         $imageId
-     * @param  array  $parameters
-     * @return string
+     * @param array<mixed> $parameters
+     *
      * @throws LogicException
      */
-    public function renderImageSrc($imageId, $parameters = []): string
+    public function renderImageSrc(mixed $imageId, array $parameters = []): string
     {
-        return $this->renderImage($imageId, $parameters)->getSrc()??'';
+        return $this->renderImage($imageId, $parameters)->getSrc() ?? '';
     }
 
     /**
-     * @param         $asset
-     * @param  array  $parameters
+     * @param mixed        $asset
+     * @param array<mixed> $parameters
+     *
      * @return Asset
-     * @throws LogicException
      */
-    public function renderImage($asset, $parameters = []): Asset
+    public function renderImage(mixed $asset, array $parameters = []): Asset
     {
-        // on cherche un AssetHandler pour
-        if (null === $this->assetResolver) {
-            throw new LogicException('AssetResolver is not defined. You cannot manage assets');
-        }
-
         // cas d'un tableau d'assets,
         // on ne traite que le premier (ex : image simple sur squidex)
-        if(is_array($asset) && isset($asset[0]) && $asset[0] instanceof Asset) {
+        if (is_array($asset) && isset($asset[0]) && $asset[0] instanceof Asset) {
             $asset = $asset[0];
         }
 

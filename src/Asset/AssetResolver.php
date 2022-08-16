@@ -12,7 +12,7 @@ use Efrogg\ContentRenderer\Core\Resolver\SolverInterface;
  * Class AssetResolver
  * @package Efrogg\ContentRenderer\Asset
  *
- * @method AssetHandlerInterface resolve(Asset $solvable)
+ * @method AssetHandlerInterface resolve(mixed $solvable)
  */
 class AssetResolver extends Resolver
 {

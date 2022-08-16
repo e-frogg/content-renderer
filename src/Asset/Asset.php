@@ -13,7 +13,7 @@ use Efrogg\ContentRenderer\Node;
  * Class Asset
  * @package Efrogg\ContentRenderer\Asset
  * @method $this setSrc(string $src)
- * @method string getSrc()
+ * @method ?string getSrc()
  *
  * @method $this setParameters(array $parameters)
  * @method array getParameters()

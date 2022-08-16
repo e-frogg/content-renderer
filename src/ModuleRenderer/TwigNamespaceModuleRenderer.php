@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Efrogg\ContentRenderer\ModuleRenderer;
 
@@ -21,33 +22,35 @@ use Twig\Environment;
  */
 class TwigNamespaceModuleRenderer extends AbstractTwigModuleRenderer
 {
-    /** @var string */
-    protected $twigNamespace;
-    /** @var string */
-    protected $fileExtension;
+    protected string $twigNamespace;
+    protected string $fileExtension;
+
+    protected string $pathSeparator = '-';
+    protected int $maxPathDepth = 2;
 
     /**
      * SimpleTwigModule constructor.
-     * @param  Environment  $environment
-     * @param  string         $baseTwigNamespace
-     * @param  string       $fileExtension
+     *
+     * @param Environment $environment
+     * @param string      $baseTwigNamespace
+     * @param string      $fileExtension
      */
-    public function __construct(Environment $environment,$baseTwigNamespace='',$fileExtension='.twig')
+    public function __construct(Environment $environment, string $baseTwigNamespace = '', string $fileExtension = '.twig')
     {
         parent::__construct($environment);
-        $this->twigNamespace = trim($baseTwigNamespace,'/');
+        $this->twigNamespace = trim($baseTwigNamespace, '/');
         $this->fileExtension = $fileExtension;
     }
 
     public function getTemplateForModuleType(string $nodeType):string
     {
-        return $this->addExtension($this->twigNamespace.'/'.$nodeType);
+        return $this->addExtension($this->twigNamespace . '/' . $this->computeNodeFileName($nodeType));
     }
 
     protected function addExtension(string $twigPath): string
     {
         $extension = $this->getFileExtension();
-        if($extension === substr($twigPath, -strlen($extension))) {
+        if (str_ends_with($twigPath, $extension)) {
             return $twigPath;
         }
 
@@ -62,11 +65,7 @@ class TwigNamespaceModuleRenderer extends AbstractTwigModuleRenderer
         return $this->twigNamespace;
     }
 
-    /**
-     * @param  mixed  $twigNamespace
-     * @return self
-     */
-    public function setTwigNamespace($twigNamespace): self
+    public function setTwigNamespace(string $twigNamespace): self
     {
         $this->twigNamespace = $twigNamespace;
         return $this;
@@ -82,12 +81,35 @@ class TwigNamespaceModuleRenderer extends AbstractTwigModuleRenderer
     }
 
     /**
-     * @param  string  $fileExtension
+     * @param string $fileExtension
+     *
      * @return self
      */
     public function setFileExtension(string $fileExtension): self
     {
         $this->fileExtension = $fileExtension;
         return $this;
+    }
+
+
+    /**
+     * @param string $nodeType
+     *
+     * @return string
+     */
+    private function computeNodeFileName(string $nodeType): string
+    {
+        if(empty($this->pathSeparator)) {
+            return $nodeType;
+        }
+
+        $parts = explode($this->pathSeparator, $nodeType);
+        $lastPart = array_pop($parts);
+        $folderParts = array_splice($parts, 0, $this->maxPathDepth);
+        $parts[] = $lastPart;
+
+        dump($parts, $folderParts, $nodeType);
+        $folderParts[] = implode($this->pathSeparator, $parts);
+        return implode(DIRECTORY_SEPARATOR, $folderParts);
     }
 }
