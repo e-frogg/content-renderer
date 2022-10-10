@@ -4,7 +4,7 @@
   "homepage":     "https://www.e-frogg.com",
   "keywords":     ["CMS"],
   "license":      "MIT",
-  "version":      "2.1.7",
+  "version":      "2.1.8",
   "authors": [
     {"name": "Raphaël HOMANN"}
   ],
