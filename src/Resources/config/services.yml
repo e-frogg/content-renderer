@@ -126,6 +126,7 @@ services:
 
     # an alias is created, in order to be substituted by the cache node provider
     cms.node_provider:
+        public: true
         alias: 'cms.node_provider_resolver'
 
     Efrogg\ContentRenderer\ModuleRenderer\TwigNamespaceModuleRenderer:
