@@ -80,6 +80,7 @@ services:
 
     cms.renderer:
         class: Efrogg\ContentRenderer\CmsRenderer
+        public:true
         arguments:
             - '@cms.module_resolver'
             - '@cms.module_renderer_resolver'
