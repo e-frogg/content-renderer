@@ -28,7 +28,7 @@ class CacheClearEventSubscriber implements EventSubscriberInterface
     /**
      * @inheritDoc
      */
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             NodeProviderEvents::PUBLISH => 'onPublish',

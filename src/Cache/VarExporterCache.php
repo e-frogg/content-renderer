@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 
 namespace Efrogg\ContentRenderer\Cache;
 
@@ -20,13 +22,10 @@ class VarExporterCache extends AbstractContentCache
 {
     use CacheTrait;
 
-    /**
-     * @var CmsEventDispatcher
-     */
-    protected $cmsEventDispatcher;
-    private $storagePath;
+    protected CmsEventDispatcher $cmsEventDispatcher;
+    private string $storagePath;
 
-    public function __construct($storagePath, CmsEventDispatcher $cmsEventDispatcher,?LoggerInterface $logger = null)
+    public function __construct(string $storagePath, CmsEventDispatcher $cmsEventDispatcher,?LoggerInterface $logger = null)
     {
         $this->storagePath = rtrim($storagePath, '/');
         $this->initLogger($logger);
@@ -37,7 +36,7 @@ class VarExporterCache extends AbstractContentCache
     /**
      * @inheritDoc
      */
-    public function getItem($key)
+    public function getItem($key): CacheItemInterface
     {
         return $this->contentGetCacheItem(
             $key,
@@ -57,7 +56,12 @@ class VarExporterCache extends AbstractContentCache
             });
     }
 
-    public function getItems(array $keys = array())
+    /**
+     * @param array<string> $keys
+     *
+     * @return array<mixed>|\Traversable<mixed>
+     */
+    public function getItems(array $keys = array()): iterable
     {
         return array_map([$this,'getItem'],$keys);
     }
@@ -130,20 +134,19 @@ class VarExporterCache extends AbstractContentCache
         return (bool)file_put_contents($fileName, '<?php return ' . $exported . ';');
     }
 
-    public function saveDeferred(CacheItemInterface $item)
+    public function saveDeferred(CacheItemInterface $item): bool
     {
+        // no deffered here ...
         return $this->save($item);
-        // TODO: Implement saveDeferred() method.
     }
 
-    public function commit()
+    public function commit(): bool
     {
         // no deffered here ...
         return true;
-        // TODO: Implement commit() method.
     }
 
-    private function getFileName(string $key)
+    private function getFileName(string $key): string
     {
         return $this->storagePath . '/' . md5($key) . '.php';
     }

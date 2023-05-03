@@ -2,13 +2,14 @@
 
 namespace Efrogg\ContentRenderer\Cache;
 
+use Closure;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Contracts\Cache\CacheInterface;
 
 class DummyCache implements CacheInterface
 {
 
-    protected static $createCacheItem;
+    protected static Closure $createCacheItem;
 
     public function __construct()
     {
@@ -25,7 +26,10 @@ class DummyCache implements CacheInterface
         );
     }
 
-    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null)
+    /**
+     * @param array<mixed>|null $metadata
+     */
+    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null): mixed
     {
         $item = $this->getItem($key);
 
@@ -38,7 +42,7 @@ class DummyCache implements CacheInterface
         return true;
     }
 
-    protected function getItem(string $key)
+    protected function getItem(string $key): CacheItem
     {
         $value = null;
         return (self::$createCacheItem)($key, $value, false);

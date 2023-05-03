@@ -12,7 +12,10 @@ class CmsLogger implements LoggerInterface
      */
     private $logs=[];
 
-    public function log($level, $message, array $context = array())
+    /**
+     * @param array<mixed> $context
+     */
+    public function log($level, $message, array $context = array()): void
     {
         $this->logs[]=new LogEntry($level,$message,$context);
     }

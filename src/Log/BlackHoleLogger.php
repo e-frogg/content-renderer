@@ -11,7 +11,10 @@ class BlackHoleLogger implements LoggerInterface
 {
     use LoggerTrait;
 
-    public function log($level, $message, array $context = array())
+    /**
+     * @param array<mixed> $context
+     */
+    public function log($level, $message, array $context = array()): void
     {
     }
 }

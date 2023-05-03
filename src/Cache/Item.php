@@ -12,61 +12,56 @@ use Symfony\Contracts\Cache\ItemInterface;
 class Item implements ItemInterface
 {
 
-    private $key;
-    /**
-     * @var mixed
-     */
-    private $value;
-    /**
-     * @var bool
-     */
-    private $isHit = false;
-    /**
-     * @var DateInterval|int|null
-     */
-    private $expiresAfter;
-    /**
-     * @var DateTimeInterface|nul
-     */
-    private $expiresAt;
 
-    public function __construct($key)
+    private string $key;
+
+    private mixed $value;
+
+    private bool $isHit = false;
+
+    private DateInterval|int|null $expiresAfter;
+
+    private ?DateTimeInterface $expiresAt;
+
+    public function __construct(string $key)
     {
         $this->key = $key;
     }
 
-    public function getKey()
+    public function getKey(): string
     {
         return $this->key;
     }
 
-    public function get()
+    public function get(): mixed
     {
         return $this->value;
     }
 
-    public function isHit()
+    public function isHit(): bool
     {
         return $this->isHit;
     }
 
-    public function set($value)
+    public function set($value): static
     {
         $this->value = $value;
+        return $this;
     }
 
-    public function expiresAt($expiration)
+    public function expiresAt($expiration): static
     {
         $this->expiresAt = $expiration;
+        return $this;
     }
 
-    public function expiresAfter($time)
+    public function expiresAfter($time): static
     {
         $this->expiresAfter = $time;
         return $this;
     }
 
-    public function getTTL()
+    public function getTTL(): int|null
     {
         if(is_int($this->expiresAfter)) {
             return $this->expiresAfter;
@@ -88,6 +83,9 @@ class Item implements ItemInterface
         return $this;
     }
 
+    /**
+     * @return array<mixed>
+     */
     public function getMetadata(): array
     {
         return [];
@@ -97,7 +95,7 @@ class Item implements ItemInterface
      * @param  bool  $isHit
      * @return static
      */
-    public function setIsHit(bool $isHit): Item
+    public function setIsHit(bool $isHit): static
     {
         $this->isHit = $isHit;
         return $this;

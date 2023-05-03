@@ -7,6 +7,7 @@ namespace Efrogg\ContentRenderer\Cache;
 use Efrogg\ContentRenderer\Converter\NodeToArrayConverter;
 use Efrogg\ContentRenderer\Log\LoggerProxy;
 use Efrogg\ContentRenderer\Node;
+use JsonException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -16,42 +17,41 @@ use Psr\Log\LoggerInterface;
 class JsonDumperCache extends DummyCache implements CacheKeyEncoderInterface
 {
     use LoggerProxy;
-    /**
-     * @var string
-     */
-    protected $baseStoragePath;
 
-    /**
-     * @var NodeToArrayConverter
-     */
-    private $converter;
+    protected string $baseStoragePath;
+
+    private NodeToArrayConverter $converter;
 
     public function __construct(string $baseStoragePath,?LoggerInterface $logger=null)
     {
         parent::__construct();
-        if($logger) {
+        if ($logger) {
             $this->setLogger($logger);
         }
 
         $this->converter = new NodeToArrayConverter();
         // TODO : dans le containerBuilder
-        $this->baseStoragePath = rtrim($baseStoragePath,'/');
+        $this->baseStoragePath = rtrim($baseStoragePath, '/');
     }
 
-    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null)
+    /**
+     * @param array<mixed>|null $metadata
+     */
+    public function get(string $key, callable $callback, float $beta = null, array &$metadata = null): mixed
     {
         /** @var Node $node */
         $node = parent::get($key, $callback, $beta, $metadata);
 
         // ne pas sauvegarder le json en mode preview
-        if($node->isPreview()) {
+        if ($node->isPreview()) {
             $this->info('no save cache because of preview mode is enabled');
             return $node;
         }
 
         $data = $this->converter->convert($node);
-        $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
-        if (false === $json) {
+        try {
+            $json = json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+        } catch (JsonException $e) {
             $this->error('unable to convert to json', ['data' => $data]);
             return $node;
         }
@@ -69,7 +69,7 @@ class JsonDumperCache extends DummyCache implements CacheKeyEncoderInterface
         if (false === $saved) {
             $this->error('could not write file ' . $finalStorageFile);
         }
-//        echo($finalStorageFile);
+
         $this->info('saved json ('.$finalStorageFile.')', ['fileName' => $finalStorageFile, 'data' => $json, 'title' => 'JsonDumperNodeProvider']);
         return $node;
     }

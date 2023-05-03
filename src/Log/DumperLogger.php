@@ -11,7 +11,10 @@ class DumperLogger implements LoggerInterface
 {
     use LoggerTrait;
 
-    public function log($level, $message, array $context = array())
+    /**
+     * @param array<mixed> $context
+     */
+    public function log($level, $message, array $context = array()): void
     {
         dump(sprintf('[%s] : %s',$level,$message));
     }
