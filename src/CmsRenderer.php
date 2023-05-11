@@ -83,7 +83,7 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
      * @throws Exception\InvalidDataException
      * @throws LogicException
      */
-    public function convertAndRender($data): string
+    public function convertAndRender($data): ?string
     {
         if ($data instanceof Node) {
             return $this->render($data);
@@ -91,7 +91,12 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
         if (is_array($data)) {
             return $this->render($this->converter->convert($data));
         }
-        throw new LogicException('data must be Node or valid array');
+
+        // if strict mode, throw exception
+        if ($this->isDebugMode()) {
+            throw new LogicException('data must be Node or valid array');
+        }
+        return null;
     }
 
     /**
