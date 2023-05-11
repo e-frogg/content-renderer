@@ -98,6 +98,10 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
         }
         return null;
     }
+    public function convertAndRenderMultiple($data): ?string
+    {
+            return implode(',',array_map([$this,'convertAndRender'], $data));
+    }
 
     /**
      * @param Node $node
@@ -228,5 +232,15 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
     public function restoreUpdateCache(): void
     {
         $this->nodeProvider->restoreUpdateCache();
+    }
+
+    /**
+     * @param array<mixed> $data
+     *
+     * @return bool
+     */
+    private function isAssociativeArray(array $data): bool
+    {
+        return array_keys($data) !== range(0, count($data) - 1);
     }
 }
