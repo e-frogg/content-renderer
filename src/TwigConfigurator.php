@@ -14,6 +14,7 @@ use LogicException;
 use Symfony\Component\HttpKernel\Config\FileLocator;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
+use Twig\Extension\EscaperExtension;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\FilesystemLoader;
 use Twig\TwigFilter;
@@ -67,30 +68,38 @@ class TwigConfigurator implements ConfiguratorInterface
 
         $this->environment->addFilter(new TwigFilter('cmsImage', [$this, 'renderImageSrc'], ['is_safe' => ['html']]));
         $this->environment->addFunction(new TwigFunction('cmsImage', [$this, 'renderImage'], ['is_safe' => ['html']]));
+        $this->environment->getExtension(EscaperExtension::class)->setEscaper('json_string', [$this, 'jsonStringEscape']);
 
         // déclenche l'event pour ajouter
         $loader = $this->environment->getLoader();
         if ($loader instanceof ChainLoader) {
-
             $pathCollector = new TwigPathCollector();
             $this->eventDispatcher->dispatch(new TwigConfigurationEvent($this->environment, $pathCollector));
 
             $filesystemLoader = new FilesystemLoader();
-            $filesystemLoader->setPaths($pathCollector->getSortedPaths(),'CMS');
+            $filesystemLoader->setPaths($pathCollector->getSortedPaths(), 'CMS');
             $loader->addLoader($filesystemLoader);
         }
+    }
 
+    public function jsonStringEscape(Environment $_twig, ?string $string): ?string
+    {
+        if (null === $string) {
+            return null;
+        }
+        return str_replace('"', '\\"', $string);
     }
 
     /**
      * @param         $imageId
-     * @param  array  $parameters
+     * @param array   $parameters
+     *
      * @return string
      * @throws LogicException
      */
     public function renderImageSrc($imageId, $parameters = []): string
     {
-        return $this->renderImage($imageId, $parameters)->getSrc()??'';
+        return $this->renderImage($imageId, $parameters)->getSrc() ?? '';
     }
 
     /**
