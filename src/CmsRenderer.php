@@ -100,7 +100,7 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
     }
     public function convertAndRenderMultiple($data): ?string
     {
-            return implode(',',array_map([$this,'convertAndRender'], $data));
+            return implode('',array_map([$this,'convertAndRender'], $data));
     }
 
     /**
