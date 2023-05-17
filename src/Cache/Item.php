@@ -77,7 +77,7 @@ class Item implements ItemInterface
         return null;
     }
 
-    public function tag($tags): ItemInterface
+    public function tag(string|iterable $tags): static
     {
         // TODO: Implement tag() method.
         return $this;

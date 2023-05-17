@@ -13,7 +13,7 @@ trait LoggerProxy
     use LoggerAwareTrait;
     use LoggerTrait;
 
-    public function log($level, $message, array $context = array())
+    public function log($level, string|\Stringable $message, array $context = []): void
     {
         if (null !== $this->logger) {
             $this->logger->log($level, $message, $context);
