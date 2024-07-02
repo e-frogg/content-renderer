@@ -11,15 +11,15 @@
   "require": {
     "php": ">=8.1",
     "ext-json": "*",
-    "symfony/event-dispatcher": "^6.0",
+    "symfony/event-dispatcher": "^6.0|^7.0",
     "psr/cache": "*",
     "psr/log": "*",
-    "symfony/expression-language": "^6.0"
+    "symfony/expression-language": "^6.0|^7.0",
+    "twig/twig": "*"
   },
   "require-dev": {
     "roave/security-advisories": "dev-latest",
     "phpunit/phpunit": "^8",
-    "twig/twig": "^1",
     "jaschilz/php-coverage-badger": "^2.0"
   },
   "autoload": {
