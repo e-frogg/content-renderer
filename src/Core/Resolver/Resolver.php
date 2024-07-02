@@ -65,7 +65,7 @@ abstract class Resolver
     }
 
     /**
-     * @param  array  $solvers
+     * @param  iterable  $solvers
      * @throws InvalidSolverException
      */
     public function addSolvers(iterable $solvers): void

@@ -4,8 +4,6 @@
 namespace Efrogg\ContentRenderer\DependencyInjection;
 
 
-use Efrogg\ContentRenderer\Core\Resolver\ContainerTag;
-use Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererInterface;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
@@ -22,13 +20,6 @@ class ContentRendererExtension extends Extension
         );
         $loader->load('services.yml');
 
-        // moved into the services.yaml (_instanceof part)
-//        $container->registerForAutoconfiguration(ModuleRendererInterface::class)
-//                  ->addTag(ContainerTag::TAG_MODULE_RENDERER)
-//        ;
-//        $container->registerForAutoconfiguration(NodeProviderInterface::class)
-//                  ->addTag(ContainerTag::TAG_NODE_PROVIDER)
-//        ;
 
 
 

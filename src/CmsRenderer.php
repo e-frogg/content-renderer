@@ -14,33 +14,25 @@ use Efrogg\ContentRenderer\Module\ModuleResolver;
 use Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver;
 use Efrogg\ContentRenderer\NodeProvider\NodeProviderInterface;
 use LogicException;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Twig\Template;
 
-class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, CmsRendererInterface
+class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, CmsRendererInterface, LoggerAwareInterface
 {
     use DecoratorAwareTrait;
     use ParameterizableTrait;
+    use LoggerAwareTrait;
 
-    /**
-     * @var ModuleResolver
-     */
-    private $moduleResolver;
+    private ModuleResolver $moduleResolver;
 
-    /**
-     * @var NodeProviderInterface
-     */
-    private $nodeProvider;
+    private NodeProviderInterface $nodeProvider;
 
-    /**
-     * @var ModuleRendererResolver
-     */
-    private $moduleRendererResolver;
-    /**
-     * @var ArrayConverter
-     */
-    private $converter;
+    private ModuleRendererResolver $moduleRendererResolver;
 
-    private $debugMode = false;
+    private ArrayConverter $converter;
+
+    private bool $debugMode = false;
 
     /**
      * @return bool
@@ -113,19 +105,20 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
      */
     public function render(Node $node): string
     {
-        if (null === $this->moduleResolver) {
+        if (!isset($this->moduleResolver)) {
             throw new LogicException('moduleResolver is not present');
         }
-        if (null === $this->moduleRendererResolver) {
+        if (!isset($this->moduleRendererResolver)) {
             throw new LogicException('moduleRendererResolver is not present');
         }
+
+        $this->logger->debug('rendering node ' . $node->getType());
         $module = $this->moduleResolver->resolve($node);
         $renderer = $this->moduleRendererResolver->resolve($module);
 
         $renderer->setParameters($this->getParameters());
         return $this->decorate($renderer->render($module, $node));
     }
-    //TODO : dataProvider sur type de node => page => tpl (h1 etc.....)
 
 
     /**
@@ -140,7 +133,7 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
      */
     public function renderNodeById(string $nodeId, string $subNode = null): string
     {
-        if (null === $this->nodeProvider) {
+        if (!isset($this->nodeProvider)) {
             throw new LogicException('there is no nodeProvider configured');
         }
         try {

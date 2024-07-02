@@ -87,6 +87,10 @@ services:
         calls:
             - [ 'setNodeProvider',[ '@cms.node_provider' ] ]
             - [ 'initConfigurator',[ '@cms.twig_configurator' ] ]
+            - ['setLogger',['@cms.logger']]
+
+    Efrogg\ContentRenderer\CmsRendererInterface:
+        alias: cms.renderer
 
     cms.twig_configurator:
         class: 'Efrogg\ContentRenderer\TwigConfigurator'
@@ -94,6 +98,8 @@ services:
             - '@cms.renderer'
             - '@cms.asset_resolver'
             - '@twig'
+    Efrogg\ContentRenderer\TwigConfigurator:
+        alias: cms.twig_configurator
 
     cms.event_dispatcher:
         class: 'Efrogg\ContentRenderer\Event\CmsEventDispatcher'
@@ -110,7 +116,7 @@ services:
     cms.node_provider_resolver:
         class: 'Efrogg\ContentRenderer\NodeProvider\NodeProviderResolver'
         calls:
-            - [ 'addSolvers',[ !tagged_iterator cms.node_provider ] ] # ContainerTag::TAG_NODE_PROVIDER
+            - [ 'addSolvers',[ !tagged_iterator 'cms.node_provider' ] ] # ContainerTag::TAG_NODE_PROVIDER
             - [ 'setCache',[ '@cms.cache' ] ]
             - [ 'setLogger',[ '@cms.logger' ]]
             - [ 'setTTL',[ '%cms.cache.ttl%' ]]
