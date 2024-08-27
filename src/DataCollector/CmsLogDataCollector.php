@@ -6,23 +6,24 @@ use Efrogg\ContentRenderer\Log\CmsLogger;
 use Symfony\Bundle\FrameworkBundle\DataCollector\AbstractDataCollector;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class CmsLogDataCollector extends AbstractDataCollector
 {
 
-    /** @var CmsLogger */
-    private $logger;
-
-    /**
-     * @param CmsLogger $storybloklogger
-     */
-    public function __construct(CmsLogger $storybloklogger)
+    public function __construct(private readonly CmsLogger $logger)
     {
-        $this->logger = $storybloklogger;
     }
 
 
-    public function collect(Request $request, Response $response, \Throwable $exception = null)
+    /**
+     * @param Request        $request
+     * @param Response       $response
+     * @param Throwable|null $exception
+     *
+     * @return void
+     */
+    public function collect(Request $request, Response $response, \Throwable $exception = null): void
     {
         $this->data = [
             'logs' => $this->logger->getLogs()

@@ -14,9 +14,9 @@ use LogicException;
 use Symfony\Component\HttpKernel\Config\FileLocator;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
-use Twig\Extension\EscaperExtension;
 use Twig\Loader\ChainLoader;
 use Twig\Loader\FilesystemLoader;
+use Twig\Runtime\EscaperRuntime;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
@@ -69,7 +69,11 @@ class TwigConfigurator implements ConfiguratorInterface
 
         $this->environment->addFilter(new TwigFilter('cmsImage', [$this, 'renderImageSrc'], ['is_safe' => ['html']]));
         $this->environment->addFunction(new TwigFunction('cmsImage', [$this, 'renderImage'], ['is_safe' => ['html']]));
-        $this->environment->getExtension(EscaperExtension::class)->setEscaper('json_string', [$this, 'jsonStringEscape']);
+
+        $this->environment->getRuntime(EscaperRuntime::class)->setEscaper(
+            'json_string',
+            $this->jsonStringEscape(...)
+        );
 
         // déclenche l'event pour ajouter
         $loader = $this->environment->getLoader();
