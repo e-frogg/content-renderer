@@ -84,6 +84,7 @@ services:
         arguments:
             - '@cms.module_resolver'
             - '@cms.module_renderer_resolver'
+            - '@event_dispatcher'
         calls:
             - [ 'setNodeProvider',[ '@cms.node_provider' ] ]
             - [ 'initConfigurator',[ '@cms.twig_configurator' ] ]

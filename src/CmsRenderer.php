@@ -9,6 +9,7 @@ use Efrogg\ContentRenderer\Converter\Keyword;
 use Efrogg\ContentRenderer\Core\ConfiguratorInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
+use Efrogg\ContentRenderer\Event\BeforeRenderEvent;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Module\ModuleResolver;
 use Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver;
@@ -16,6 +17,7 @@ use Efrogg\ContentRenderer\NodeProvider\NodeProviderInterface;
 use LogicException;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Template;
 
 class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, CmsRendererInterface, LoggerAwareInterface
@@ -24,13 +26,9 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
     use ParameterizableTrait;
     use LoggerAwareTrait;
 
-    private ModuleResolver $moduleResolver;
-
     private NodeProviderInterface $nodeProvider;
 
-    private ModuleRendererResolver $moduleRendererResolver;
-
-    private ArrayConverter $converter;
+    private readonly ArrayConverter $converter;
 
     private bool $debugMode = false;
 
@@ -56,13 +54,15 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
     /**
      * Renderer constructor.
      *
-     * @param ModuleResolver         $moduleResolver
-     * @param ModuleRendererResolver $moduleRendererResolver
+     * @param ModuleResolver           $moduleResolver
+     * @param ModuleRendererResolver   $moduleRendererResolver
+     * @param EventDispatcherInterface $eventDispatcher
      */
-    public function __construct(ModuleResolver $moduleResolver, ModuleRendererResolver $moduleRendererResolver)
+    public function __construct(
+        private readonly ModuleResolver $moduleResolver,
+        private readonly ModuleRendererResolver $moduleRendererResolver,
+        private readonly EventDispatcherInterface $eventDispatcher)
     {
-        $this->moduleResolver = $moduleResolver;
-        $this->moduleRendererResolver = $moduleRendererResolver;
         $this->converter = new ArrayConverter();
     }
 
@@ -116,6 +116,12 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
         $module = $this->moduleResolver->resolve($node);
         $renderer = $this->moduleRendererResolver->resolve($module);
 
+        $beforeRenderEvent = new BeforeRenderEvent($module, $node);
+        $this->eventDispatcher->dispatch($beforeRenderEvent);
+
+        if($beforeRenderEvent->isHidden()) {
+            return '';
+        }
         $renderer->setParameters($this->getParameters());
         return $this->decorate($renderer->render($module, $node));
     }
