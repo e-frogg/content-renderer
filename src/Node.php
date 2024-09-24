@@ -18,14 +18,19 @@ use Efrogg\ContentRenderer\Core\MagicObject;
 class Node extends MagicObject
 {
     /**
-     * @var array
+     * @var array<string,mixed>
      */
-    private $context;
+    private array $context;
     /**
-     * @var mixed|null
+     * @var int|string|null
      */
-    private $nodeId;
+    private mixed $nodeId;
 
+    /**
+     * @param array<string,mixed> $data
+     * @param array<string,mixed> $context
+     * @param array<string,mixed> ...$extraDatas
+     */
     public function __construct(array $data = [], array $context = [], ...$extraDatas)
     {
         parent::__construct($data, ...$extraDatas);
@@ -33,27 +38,21 @@ class Node extends MagicObject
         $this->nodeId = $this->guessId();
     }
 
-    /**
-     * @return string
-     */
     public function getType(): ?string
     {
-        return $this->_type;
+        return $this->__get('_type');
     }
 
     /**
-     * @return array
+     * @return array<string,mixed>
      */
     public function getContext(): array
     {
-        if (null === $this->context) {
-            return [];
-        }
         return $this->context;
     }
 
     /**
-     * @param array $context
+     * @param array<string,mixed> $context
      */
     public function setContext(array $context): void
     {
@@ -62,9 +61,10 @@ class Node extends MagicObject
 
     /**
      * essaye de trouver l'id
-     * @return mixed|null
+     *
+     * @return int|string|null
      */
-    private function guessId()
+    private function guessId(): int|string|null
     {
         if ($this->__isset(Keyword::NODE_UID)) {
             return $this->__get(Keyword::NODE_UID);
@@ -84,7 +84,7 @@ class Node extends MagicObject
     /**
      * @return mixed|null
      */
-    public function getNodeId()
+    public function getNodeId(): mixed
     {
         return $this->nodeId;
     }

@@ -8,13 +8,13 @@ namespace Efrogg\ContentRenderer\Core;
 class MagicObject implements \ArrayAccess
 {
     /**
-     * @var array
+     * @var array<string,mixed>
      */
     private $data;
 
     /**
      * MagicObject constructor.
-     * @param  array[]  $datas
+     * @param  array<string,mixed>  ...$datas
      */
     public function __construct(...$datas)
     {
@@ -22,7 +22,7 @@ class MagicObject implements \ArrayAccess
     }
 
     /**
-     * @return array
+     * @return array<string,mixed>
      */
     public function getData(): array
     {
@@ -30,7 +30,7 @@ class MagicObject implements \ArrayAccess
     }
 
     /**
-     * @param  array  $data
+     * @param  array<string,mixed>  $data
      * @return self
      */
     public function setData(array $data): self
@@ -41,55 +41,60 @@ class MagicObject implements \ArrayAccess
     }
 
 
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         return $this->data[$name] ?? null;
     }
-    public function __set($name, $value)
+    public function __set(string $name, mixed $value): void
     {
         $this->data[$name] = $value;
     }
 
-    public function __isset($name)
+    public function __isset(string $name)
     {
         return isset($this->data[$name]);
     }
 
-    public function __unset($name)
+    public function __unset(string $name)
     {
         unset($this->data[$name]);
     }
 
-    public function __call($name, $arguments)
+    /**
+     * @param array<mixed>  $arguments
+     */
+    public function __call(string $name, array $arguments): mixed
     {
-        if(strpos($name,'set')===0) {
+        if(str_starts_with($name, 'set')) {
             $property = lcfirst(substr($name,3));
             $this->__set($property,reset($arguments));
-            return ;
+            return null;
         }
 
-        if(strpos($name,'get')===0) {
+        if(str_starts_with($name, 'get')) {
             $property = lcfirst(substr($name,3));
             return $this->__get($property);
         }
+
+        return null;
     }
 
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return $this->__isset($offset);
     }
 
-    public function offsetGet($offset): mixed
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->__get($offset);
     }
 
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, $value): void
     {
         $this->__set($offset,$value);
     }
 
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         $this->__unset($offset);
     }
