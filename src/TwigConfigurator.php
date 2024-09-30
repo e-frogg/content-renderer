@@ -29,7 +29,7 @@ class TwigConfigurator implements ConfiguratorInterface
     protected EventDispatcherInterface $eventDispatcher;
     protected FileLocator $fileLocator;
     /**
-     * @var CmsRenderer
+     * @var CmsRendererInterface
      */
     private $cmsRenderer;
 
@@ -45,11 +45,11 @@ class TwigConfigurator implements ConfiguratorInterface
     /**
      * TwigRenderer constructor.
      *
-     * @param CmsRenderer    $cmsRenderer
+     * @param CmsRendererInterface    $cmsRenderer
      * @param  AssetResolver $assetResolver
      * @param  Environment   $environment
      */
-    public function __construct(CmsRenderer $cmsRenderer,AssetResolver $assetResolver,Environment $environment, EventDispatcherInterface $eventDispatcher, FileLocator $fileLocator)
+    public function __construct(CmsRendererInterface $cmsRenderer,AssetResolver $assetResolver,Environment $environment, EventDispatcherInterface $eventDispatcher, FileLocator $fileLocator)
     {
         $this->cmsRenderer = $cmsRenderer;
         $this->assetResolver = $assetResolver;
