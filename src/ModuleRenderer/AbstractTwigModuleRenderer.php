@@ -84,9 +84,7 @@ abstract class AbstractTwigModuleRenderer implements ModuleRendererInterface, Lo
                 $twigData
             );
         } catch (LoaderError $e) {
-            if (null !== $this->logger) {
-                $this->logger->error(sprintf("missing template %s", $templateName));
-            }
+            $this->logger?->error(sprintf("missing template %s", $templateName));
             if ($this->debugMode) {
                 $missingTpl = $this->getTemplateForModuleType('missingTemplate');
                 try {
@@ -95,9 +93,7 @@ abstract class AbstractTwigModuleRenderer implements ModuleRendererInterface, Lo
                         ['templateName' => $templateName]
                     );
                 } catch (LoaderError ) {
-                    if (null !== $this->logger) {
-                        $this->logger->error(sprintf("missing template %s", $missingTpl));
-                    }
+                    $this->logger?->error(sprintf("missing template %s", $missingTpl));
                     return sprintf("-- missing template %s --", $templateName);
                 }
             }
