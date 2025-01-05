@@ -1,15 +1,15 @@
-parameters:
-    cms.twig.namespace: ''
-    cms.twig.extension: '.twig'
-    cms.twig.debug_mode: false
-    # convert cms-page to cms/page
-    cms.twig.path_separator: '-'
-    # ex for 2 : cms-folder-block-name => cms/folder/block-name
-    cms.twig.path_max_depth: 0
-
-    cms.cache.ttl: 60
-    cms.cache.php.storage-path: '%kernel.cache_dir%/cms/php'
-    cms.cache.json.storage-path: '%kernel.cache_dir%/cms/json'
+#parameters:
+#    cms.twig.namespace: ''
+#    cms.twig.extension: '.twig'
+#    cms.twig.debug_mode: false
+#    # convert cms-page to cms/page
+#    cms.twig.path_separator: '-'
+#    # ex for 2 : cms-folder-block-name => cms/folder/block-name
+#    cms.twig.path_max_depth: 0
+#
+#    cms.cache.ttl: 60
+#    cms.cache.php.storage-path: '%kernel.cache_dir%/cms/php'
+#    cms.cache.json.storage-path: '%kernel.cache_dir%/cms/json'
 
 services:
     #  Efrogg\ContentRenderer\ModuleRenderer\:

@@ -1,0 +1,17 @@
+content_renderer:
+    twig:
+        namespace: ''
+        extension: '.twig'
+        debug_mode: false
+        path:
+            separator: '-'
+            max_depth: 0
+    cache:
+        ttl: 60
+        storage:
+            php_path: '%kernel.cache_dir%/cms/php'
+            json_path: '%kernel.cache_dir%/cms/json'
+    logger:
+        default: 'profiler'  # Peut être 'profiler', 'dumper' ou 'blackhole'
+    services:
+        cache_handler: 'dummy'  # Peut être 'dummy', 'php' ou 'json' 
