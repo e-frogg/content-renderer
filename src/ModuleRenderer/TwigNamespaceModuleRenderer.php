@@ -1,9 +1,8 @@
 <?php
 
-
 namespace Efrogg\ContentRenderer\ModuleRenderer;
 
-
+use Efrogg\ContentRenderer\DependencyInjection\ContentRendererConfig;
 use Twig\Environment;
 
 /**
@@ -17,40 +16,31 @@ use Twig\Environment;
  *   => template : 'cms/paragraph.twig'
  *
  * Class TwigNamespaceModuleRenderer
- * @package Efrogg\ContentRenderer\ModuleRenderer
  */
 class TwigNamespaceModuleRenderer extends AbstractTwigModuleRenderer
 {
-    /** @var string */
-    protected $twigNamespace;
-    /** @var string */
-    protected $fileExtension;
-    /**
-     * @var null
-     */
-    protected $pathSeparator;
-    protected $pathMaxDepth;
+    private string $twigNamespace;
+    private string $fileExtension;
+    private readonly string $pathSeparator;
+    private readonly int $pathMaxDepth;
 
     /**
      * SimpleTwigModule constructor.
-     *
-     * @param Environment $environment
-     * @param string      $baseTwigNamespace
-     * @param string      $fileExtension
-     * @param string      $pathSeparator
-     * @param int         $pathMaxDepth
      */
-    public function __construct(Environment $environment,$baseTwigNamespace='',$fileExtension='.twig', $pathSeparator='-',$pathMaxDepth=0)
-    {
+    public function __construct(
+        Environment $environment,
+        ContentRendererConfig $config,
+    ) {
         parent::__construct($environment);
-        $baseTwigNamespace=str_replace('(at)','@',$baseTwigNamespace);
-        $this->twigNamespace = trim($baseTwigNamespace,'/');
-        $this->fileExtension = $fileExtension;
-        $this->pathSeparator = $pathSeparator;
-        $this->pathMaxDepth = $pathMaxDepth;
+        $baseTwigNamespace = str_replace('(at)', '@', $config->getTwigNamespace());
+        $this->twigNamespace = trim($baseTwigNamespace, '/');
+        $this->fileExtension = $config->getTwigExtension();
+        $this->pathSeparator = $config->getTwigPathSeparator();
+        $this->pathMaxDepth = $config->getTwigPathMaxDepth();
+        $this->debugMode = $config->getTwigDebugMode();
     }
 
-    public function getTemplateForModuleType(string $nodeType):string
+    public function getTemplateForModuleType(string $nodeType): string
     {
         return $this->addExtension($this->twigNamespace.'/'.$this->convertToPath($nodeType));
     }
@@ -58,60 +48,51 @@ class TwigNamespaceModuleRenderer extends AbstractTwigModuleRenderer
     protected function addExtension(string $twigPath): string
     {
         $extension = $this->getFileExtension();
-        if($extension === substr($twigPath, -strlen($extension))) {
+        if (str_ends_with($twigPath, $extension)) {
             return $twigPath;
         }
 
         return $twigPath.$this->getFileExtension();
     }
 
-    /**
-     * @return mixed
-     */
-    public function getTwigNamespace()
+    public function getTwigNamespace(): string
     {
         return $this->twigNamespace;
     }
 
-    /**
-     * @param  mixed  $twigNamespace
-     * @return self
-     */
-    public function setTwigNamespace($twigNamespace): self
+    public function setTwigNamespace(string $twigNamespace): self
     {
         $this->twigNamespace = $twigNamespace;
+
         return $this;
     }
 
-
-    /**
-     * @return string
-     */
     public function getFileExtension(): string
     {
         return $this->fileExtension;
     }
 
-    /**
-     * @param  string  $fileExtension
-     * @return self
-     */
     public function setFileExtension(string $fileExtension): self
     {
         $this->fileExtension = $fileExtension;
+
         return $this;
     }
 
     private function convertToPath(string $originalFileName): string
     {
-        $levels = explode($this->pathSeparator,$originalFileName);
-        if(count($levels) === 1) {
+        if ('' === $this->pathSeparator) {
             return $originalFileName;
         }
 
-//        $fileName = array_pop($levels);
-        $representativeLevels = array_splice($levels,0,min($this->pathMaxDepth,count($levels)-1));
-        $representativeLevels[]=implode($this->pathSeparator,$levels);
-        return implode(DIRECTORY_SEPARATOR,$representativeLevels);
+        $levels = explode($this->pathSeparator, $originalFileName);
+        if (1 === count($levels)) {
+            return $originalFileName;
+        }
+
+        $representativeLevels = array_splice($levels, 0, min($this->pathMaxDepth, count($levels) - 1));
+        $representativeLevels[] = implode($this->pathSeparator, $levels);
+
+        return implode(DIRECTORY_SEPARATOR, $representativeLevels);
     }
 }

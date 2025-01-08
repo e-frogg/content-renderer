@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-
 namespace Efrogg\ContentRenderer\Cache;
 
-
+use Efrogg\ContentRenderer\DependencyInjection\ContentRendererConfig;
 use Efrogg\ContentRenderer\Event\CacheEvent;
 use Efrogg\ContentRenderer\Event\CmsEventDispatcher;
 use Efrogg\ContentRenderer\Node;
@@ -16,40 +15,38 @@ use Symfony\Contracts\Cache\CacheTrait;
 
 /**
  * PSR-6 compliant implementation of RedisPersister
- * Class RedisCache
+ * Class RedisCache.
  */
 class VarExporterCache extends AbstractContentCache
 {
     use CacheTrait;
 
-    protected CmsEventDispatcher $cmsEventDispatcher;
     private string $storagePath;
 
-    public function __construct(string $storagePath, CmsEventDispatcher $cmsEventDispatcher,?LoggerInterface $logger = null)
-    {
-        $this->storagePath = rtrim($storagePath, '/');
+    public function __construct(
+        ContentRendererConfig $config,
+        protected CmsEventDispatcher $cmsEventDispatcher,
+        ?LoggerInterface $logger = null,
+    ) {
+        $this->storagePath = rtrim($config->getCachePhpPath(), '/');
         $this->initLogger($logger);
-        $this->cmsEventDispatcher = $cmsEventDispatcher;
         $cmsEventDispatcher->addListener(CacheEvent::CACHE_CLEAR, [$this, 'onClear']);
     }
 
-    /**
-     * @inheritDoc
-     */
     public function getItem($key): CacheItemInterface
     {
         return $this->contentGetCacheItem(
             $key,
             function ($key, Item $item) {
                 /** @var Node $object */
-                $object = require($fileName = $this->getFileName($key));
-//            $this->debug('loaded ('.$key.')', $object);
+                $object = require $fileName = $this->getFileName($key);
+                //            $this->debug('loaded ('.$key.')', $object);
                 $this->info(
-                    'loaded : "' . $key . '"',
+                    'loaded : "'.$key.'"',
                     [
                         'title' => 'VarExporterCache',
-                        'file'  => $fileName,
-                        'data'  => $object->getData()
+                        'file' => $fileName,
+                        'data' => $object->getData(),
                     ]
                 );
                 $item->set($object);
@@ -61,9 +58,9 @@ class VarExporterCache extends AbstractContentCache
      *
      * @return array<mixed>|\Traversable<mixed>
      */
-    public function getItems(array $keys = array()): iterable
+    public function getItems(array $keys = []): iterable
     {
-        return array_map([$this,'getItem'],$keys);
+        return array_map([$this, 'getItem'], $keys);
     }
 
     public function hasItem($key): bool
@@ -71,6 +68,7 @@ class VarExporterCache extends AbstractContentCache
         if (!$this->isUseCache()) {
             return false;
         }
+
         return file_exists($this->getFileName($key));
     }
 
@@ -88,7 +86,7 @@ class VarExporterCache extends AbstractContentCache
 
     public function deleteItem($key): bool
     {
-        $this->info('delete "' . $key . '"', ['title' => 'VarExporterCache']);
+        $this->info('delete "'.$key.'"', ['title' => 'VarExporterCache']);
 
         if (file_exists($filename = $this->getFileName($key))) {
             $this->debug('delete file '.$filename);
@@ -98,12 +96,13 @@ class VarExporterCache extends AbstractContentCache
         } else {
             $this->debug('no file '.$filename);
         }
+
         return true;
     }
 
     public function deleteItems(array $keys): bool
     {
-        return (bool)min(array_map([$this, 'delete'], $keys));
+        return (bool) min(array_map([$this, 'delete'], $keys));
     }
 
     public function save(CacheItemInterface $item): bool
@@ -121,17 +120,18 @@ class VarExporterCache extends AbstractContentCache
             }
         }
 
-        $this->cmsEventDispatcher->dispatch(new CacheEvent($item->getKey(),$item->get()),CacheEvent::CACHE_SAVE);
+        $this->cmsEventDispatcher->dispatch(new CacheEvent($item->getKey(), $item->get()), CacheEvent::CACHE_SAVE);
 
-//        $this->debug('save ('.$item->getKey().')',$item->get());
+        //        $this->debug('save ('.$item->getKey().')',$item->get());
         $this->info(
-            'save "' . $item->getKey() . '"',
+            'save "'.$item->getKey().'"',
             [
                 'title' => 'VarExporterCache',
-                'data'  => $item->get()->getData()
+                'data' => $item->get()->getData(),
             ]
         );
-        return (bool)file_put_contents($fileName, '<?php return ' . $exported . ';');
+
+        return (bool) file_put_contents($fileName, '<?php return '.$exported.';');
     }
 
     public function saveDeferred(CacheItemInterface $item): bool
@@ -148,7 +148,6 @@ class VarExporterCache extends AbstractContentCache
 
     private function getFileName(string $key): string
     {
-        return $this->storagePath . '/' . md5($key) . '.php';
+        return $this->storagePath.'/'.md5($key).'.php';
     }
-
 }

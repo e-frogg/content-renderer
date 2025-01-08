@@ -11,6 +11,7 @@ use Efrogg\ContentRenderer\Core\Resolver\Resolver;
 use Efrogg\ContentRenderer\Core\Resolver\SolverInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
 use Efrogg\ContentRenderer\Decorator\DecoratorInterface;
+use Efrogg\ContentRenderer\DependencyInjection\ContentRendererConfig;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Node;
 use Psr\Log\LoggerAwareInterface;
@@ -27,6 +28,13 @@ class NodeProviderResolver extends Resolver implements NodeProviderInterface,Log
 
     protected $solverName = 'node provider';
     protected $solvableName = 'node id';
+
+    public function __construct(
+        private readonly ContentRendererConfig $config
+    )
+    {
+        $this->setTTL($config->getCacheTtl());
+    }
 
     protected function isValidSolver(SolverInterface $solver): bool
     {

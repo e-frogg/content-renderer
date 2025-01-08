@@ -15,7 +15,7 @@ interface CmsRendererInterface extends ControlableCacheInterface
     public function convertAndRender($data): ?string;
 
     /**
-     * @param array<string,mixed> $data
+     * @param ?array<string,mixed> $data
      */
     public function convertAndRenderMultiple($data): ?string;
 }

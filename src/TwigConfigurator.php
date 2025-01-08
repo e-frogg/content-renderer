@@ -63,12 +63,12 @@ class TwigConfigurator implements ConfiguratorInterface
      */
     public function configure(): void
     {
-        $this->environment->addFilter(new TwigFilter('cms', [$this->cmsRenderer, 'convertAndRender'], ['is_safe' => ['html']]));
-        $this->environment->addFilter(new TwigFilter('cmsZone', [$this->cmsRenderer, 'convertAndRenderMultiple'], ['is_safe' => ['html']]));
-        $this->environment->addFunction(new TwigFunction('cmsNode', [$this->cmsRenderer, 'renderNodeById'], ['is_safe' => ['html']]));
+        $this->environment->addFilter(new TwigFilter('cms', $this->cmsRenderer->convertAndRender(...), ['is_safe' => ['html']]));
+        $this->environment->addFilter(new TwigFilter('cmsZone', $this->cmsRenderer->convertAndRenderMultiple(...), ['is_safe' => ['html']]));
+        $this->environment->addFunction(new TwigFunction('cmsNode', $this->cmsRenderer->renderNodeById(...), ['is_safe' => ['html']]));
 
-        $this->environment->addFilter(new TwigFilter('cmsImage', [$this, 'renderImageSrc'], ['is_safe' => ['html']]));
-        $this->environment->addFunction(new TwigFunction('cmsImage', [$this, 'renderImage'], ['is_safe' => ['html']]));
+        $this->environment->addFilter(new TwigFilter('cmsImage', $this->renderImageSrc(...), ['is_safe' => ['html']]));
+        $this->environment->addFunction(new TwigFunction('cmsImage', $this->renderImage(...), ['is_safe' => ['html']]));
 
         $this->environment->getRuntime(EscaperRuntime::class)->setEscaper(
             'json_string',
