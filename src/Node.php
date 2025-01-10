@@ -1,20 +1,20 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Efrogg\ContentRenderer;
-
-
 
 use Efrogg\ContentRenderer\Converter\Keyword;
 use Efrogg\ContentRenderer\Core\MagicObject;
 
 /**
- * Node is solvable for ModuleResolver
+ * Node is solvable for ModuleResolver.
  *
  * Class Node
+ *
  * @property ?string _type
- * @package Efrogg\ContentRenderer
  */
+#[\AllowDynamicProperties]
 class Node extends MagicObject
 {
     /**
@@ -43,6 +43,13 @@ class Node extends MagicObject
         return $this->__get('_type');
     }
 
+    public function setType(string $type): self
+    {
+        $this->__set('_type', $type);
+
+        return $this;
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -60,9 +67,7 @@ class Node extends MagicObject
     }
 
     /**
-     * essaye de trouver l'id
-     *
-     * @return int|string|null
+     * essaye de trouver l'id.
      */
     private function guessId(): int|string|null
     {
@@ -78,6 +83,7 @@ class Node extends MagicObject
         if (isset($this->context['id'])) {
             return $this->context['id'];
         }
+
         return null;
     }
 
@@ -92,9 +98,9 @@ class Node extends MagicObject
     public function isPreview(): bool
     {
         if ($this->__isset(Keyword::PREVIEW)) {
-            return (bool)$this->__get(Keyword::PREVIEW);
+            return (bool) $this->__get(Keyword::PREVIEW);
         }
+
         return false;
     }
-
 }
