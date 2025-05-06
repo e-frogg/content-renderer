@@ -95,8 +95,6 @@ services:
     cms.twig_configurator:
         class: 'Efrogg\ContentRenderer\TwigConfigurator'
         arguments:
-            - '@cms.renderer'
-            - '@cms.asset_resolver'
             - '@twig'
     Efrogg\ContentRenderer\TwigConfigurator:
         alias: cms.twig_configurator
