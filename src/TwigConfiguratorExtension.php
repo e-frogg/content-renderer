@@ -39,7 +39,7 @@ class TwigConfiguratorExtension extends AbstractExtension
         $this->assetResolver = $assetResolver;
     }
 
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             new TwigFilter('cms', $this->cmsRenderer->convertAndRender(...), ['is_safe' => ['html']]),
@@ -49,12 +49,7 @@ class TwigConfiguratorExtension extends AbstractExtension
         ];
     }
 
-    public function getTests()
-    {
-        return [];
-    }
-
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('cmsNode', $this->cmsRenderer->renderNodeById(...), ['is_safe' => ['html']]),

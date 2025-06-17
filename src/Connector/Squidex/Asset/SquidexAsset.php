@@ -40,7 +40,7 @@ class SquidexAsset extends Asset
      * @param  string       $assetId
      * @param  string|null  $version
      */
-    public function __construct(string $assetId, string $version = null)
+    public function __construct(string $assetId, ?string $version = null)
     {
         parent::__construct();
         $this->assetId = $assetId;

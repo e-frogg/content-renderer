@@ -23,14 +23,14 @@ class CmsLogDataCollector extends AbstractDataCollector
      *
      * @return void
      */
-    public function collect(Request $request, Response $response, \Throwable $exception = null): void
+    public function collect(Request $request, Response $response, ?\Throwable $exception = null): void
     {
         $this->data = [
             'logs' => $this->logger->getLogs()
         ];
     }
 
-    public function getLogs()
+    public function getLogs(): array
     {
         return $this->data['logs'];
     }

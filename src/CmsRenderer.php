@@ -137,7 +137,7 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
      * @throws Core\Resolver\Exception\SolverNotFoundException
      * @throws LogicException
      */
-    public function renderNodeById(string $nodeId, string $subNode = null): string
+    public function renderNodeById(string $nodeId, ?string $subNode = null): string
     {
         if (!isset($this->nodeProvider)) {
             throw new LogicException('there is no nodeProvider configured');
