@@ -39,7 +39,7 @@ class SimpleJsonFileNodeProvider implements NodeProviderInterface, LoggerAwareIn
      * @param  string|null  $rootPath
      * @param  string       $extension
      */
-    public function __construct(string $rootPath=null,string $extension='.json')
+    public function __construct(?string $rootPath=null,string $extension='.json')
     {
         $this->converter = new JsonConverter();
 

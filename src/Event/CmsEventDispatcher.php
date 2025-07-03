@@ -33,14 +33,14 @@ class CmsEventDispatcher extends EventDispatcher
         return $this->dispatchWithTypedReturn(new NodeEvent($node),$eventName);
     }
 
-    public function dispatch(object $event, string $eventName = null): object
+    public function dispatch(object $event, ?string $eventName = null): object
     {
         // TODO : selon version symfony, inverser les paramètres
         $this->debug(sprintf('dispatch %s', $eventName));
         return parent::dispatch($event,$eventName);
     }
 
-    private function dispatchWithTypedReturn(object $event, string $eventName = null): NodeEvent
+    private function dispatchWithTypedReturn(object $event, ?string $eventName = null): NodeEvent
     {
         $returnEvent = $this->dispatch($event, $eventName);
         assert($returnEvent instanceof NodeEvent);

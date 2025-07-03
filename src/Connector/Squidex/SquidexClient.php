@@ -37,7 +37,7 @@ class SquidexClient
      * @param  string|null  $hostName  the host name if different
      * @throws InvalidArgumentException
      */
-    public function __construct(string $baseUrl, string $basePath,$bearerApiToken, string $hostName = null,?LoggerInterface $logger=null)
+    public function __construct(string $baseUrl, string $basePath,$bearerApiToken, ?string $hostName = null,?LoggerInterface $logger=null)
     {
         $this->basePath = $basePath;
         $this->hostName = $hostName;

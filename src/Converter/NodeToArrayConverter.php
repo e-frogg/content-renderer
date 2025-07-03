@@ -17,23 +17,20 @@ class NodeToArrayConverter implements NodeConterterInterface,DecoratorAwareInter
 {
     use DecoratorAwareTrait;
 
-    /**
-     * @var AssetResolver|null
-     */
-    private $assetResolver;
+    private ?AssetResolver $assetResolver;
 
     /**
      * NodeToArrayConverter constructor.
      * @param  AssetResolver|null  $assetResolver
      */
-    public function __construct(AssetResolver $assetResolver = null)
+    public function __construct(?AssetResolver $assetResolver = null)
     {
         $this->assetResolver = $assetResolver;
     }
 
     /**
      * @param  Node  $node
-     * @return array
+     * @return array<string,mixed>
      * @throws LogicException
      */
     public function convert(Node $node):array
@@ -43,7 +40,7 @@ class NodeToArrayConverter implements NodeConterterInterface,DecoratorAwareInter
         ];
         foreach ($node->getData() as $key => $value) {
             // les clés préfixées __ ne sont pas sauvegardées
-            if(strpos($key, '__') === 0) {
+            if(str_starts_with($key, '__')) {
                 continue;
             }
 
@@ -87,8 +84,7 @@ class NodeToArrayConverter implements NodeConterterInterface,DecoratorAwareInter
     {
         if(null !== $this->assetResolver) {
             try {
-                $assetHandler = $this->assetResolver->resolve($asset);
-                return $assetHandler->getAsset($asset);
+                return $this->assetResolver->resolve($asset)->getAsset($asset);
             } catch (InvalidSolvableException $e) {
             } catch (SolverNotFoundException $e) {
             }
