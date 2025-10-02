@@ -175,3 +175,8 @@ services:
                 template: '@ContentRenderer/collector/template.html.twig'
                 # optional priority (positive or negative integer; default = 0)
                 # priority: 300
+
+    Efrogg\ContentRenderer\TwigConfiguratorExtension:
+        arguments:
+            - '@cms.renderer'
+            - '@cms.asset_resolver'

@@ -57,13 +57,14 @@ class NodeToArrayConverter implements NodeConterterInterface,DecoratorAwareInter
      */
     private function convertValue($value)
     {
+        if($value instanceof Asset) {
+            return $this->prepareAsset($value)->export();
+        }
+
         if($value instanceof Node) {
             return $this->convert($value);
         }
 
-        if($value instanceof Asset) {
-            return $this->prepareAsset($value)->export();
-        }
 
         if(is_iterable($value)) {
             $returnedValue=[];
