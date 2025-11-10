@@ -103,4 +103,16 @@ class Node extends MagicObject
 
         return false;
     }
+
+    /**
+     * @param array<string,mixed> $additionalData
+     *
+     * @return void
+     */
+    public function merge(array $additionalData): void
+    {
+        foreach ($additionalData as $key => $value) {
+            $this->__set($key, $value);
+        }
+    }
 }
