@@ -13,7 +13,7 @@ interface CmsRendererInterface extends ControlableCacheInterface
     public function render(Node $node): string;
 
     /**
-     * @param array<string,mixed>  $data
+     * @param mixed|Node|array<string,mixed>  $data
      * @param ?array<string,mixed> $additionalData
      */
     public function convertAndRender($data, ?array $additionalData = []): ?string;

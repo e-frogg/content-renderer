@@ -8,6 +8,7 @@ use Efrogg\ContentRenderer\Core\ConfiguratorInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareInterface;
 use Efrogg\ContentRenderer\Decorator\DecoratorAwareTrait;
 use Efrogg\ContentRenderer\Event\BeforeRenderEvent;
+use Efrogg\ContentRenderer\Event\BeforeRenderNodeIdEvent;
 use Efrogg\ContentRenderer\Exception\NodeNotFoundException;
 use Efrogg\ContentRenderer\Module\ModuleResolver;
 use Efrogg\ContentRenderer\ModuleRenderer\ModuleRendererResolver;
@@ -68,7 +69,7 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
             return $this->render($data);
         }
         if (is_array($data)) {
-            return $this->render($this->converter->convert(array_merge($data, $additionalData??[])));
+            return $this->render($this->converter->convert(array_merge($data, $additionalData ?? [])));
         }
 
         // if strict mode, throw exception
@@ -102,14 +103,8 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
      */
     public function render(Node $node): string
     {
-        if (!isset($this->moduleResolver)) {
-            throw new \LogicException('moduleResolver is not present');
-        }
-        if (!isset($this->moduleRendererResolver)) {
-            throw new \LogicException('moduleRendererResolver is not present');
-        }
 
-        $this->logger->debug('rendering node '.$node->getType());
+        $this->logger?->debug('rendering node '.$node->getType());
         $module = $this->moduleResolver->resolve($node);
         $renderer = $this->moduleRendererResolver->resolve($module);
 
@@ -175,6 +170,9 @@ class CmsRenderer implements DecoratorAwareInterface, ParameterizableInterface, 
                 )
             );
         }
+
+        $beforeRenderEvent = new BeforeRenderNodeIdEvent($nodeId);
+        $this->eventDispatcher->dispatch($beforeRenderEvent);
 
         return $this->render($node);
     }
