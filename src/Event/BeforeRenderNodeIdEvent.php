@@ -11,9 +11,6 @@ readonly class BeforeRenderNodeIdEvent
     ) {
     }
 
-    /**
-     * @return string
-     */
     public function getNodeId(): string
     {
         return $this->nodeId;
